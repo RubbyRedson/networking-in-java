@@ -8,6 +8,7 @@ import java.net.Socket;
  */
 public class ClientSocketHandler implements Runnable {
     private Socket client;
+    private static String END = "End";
 
     public ClientSocketHandler(Socket client) {
         this.client = client;
@@ -35,11 +36,12 @@ public class ClientSocketHandler implements Runnable {
 
     private void handle(BufferedReader reader, PrintWriter writer) throws IOException {
         String input = reader.readLine();
-        while (input != null) {
+        while (input != null && !END.equalsIgnoreCase(input)) {
             System.out.println(input);
-            writer.write(input);
+            writer.write("Cabbage\n");
             writer.flush();
             input = reader.readLine();
         }
+        System.out.println("Finished communication with the client");
     }
 }

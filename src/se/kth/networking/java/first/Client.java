@@ -8,6 +8,7 @@ import java.net.Socket;
  */
 public class Client {
     Socket socket;
+    private static String END = "End\n";
 
     public Client(Socket socket) {
         this.socket = socket;
@@ -37,8 +38,14 @@ public class Client {
         }
     }
 
-    private void handleClient(BufferedReader reader, PrintWriter writer) {
-        writer.write("Potatoes");
+    private void handleClient(BufferedReader reader, PrintWriter writer) throws IOException {
+        writer.write("Potatoes\n");
         writer.flush();
+
+        writer.write(END);
+        writer.flush();
+
+        String reply = reader.readLine();
+        System.out.println(reply);
     }
 }
