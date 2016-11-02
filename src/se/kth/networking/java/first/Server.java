@@ -9,8 +9,8 @@ import java.util.concurrent.*;
  * Created by Nick on 11/2/2016.
  */
 public class Server {
-    ServerSocket serverSocket;
-    ExecutorService executorService;
+    private ServerSocket serverSocket;
+    private ExecutorService executorService;
 
     public Server(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);

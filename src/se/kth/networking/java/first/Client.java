@@ -7,8 +7,9 @@ import java.net.Socket;
  * Created by Nick on 11/2/2016.
  */
 public class Client {
-    Socket socket;
-    private static String END = "End\n";
+    private Socket socket;
+    private static String ENDLINE = "\n";
+    private static String END = "End";
 
     public Client(Socket socket) {
         this.socket = socket;
@@ -39,13 +40,24 @@ public class Client {
     }
 
     private void handleClient(BufferedReader reader, PrintWriter writer) throws IOException {
-        writer.write("Potatoes\n");
+        BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+        String input = keyboardInput(consoleReader);
+
+        do {
+            writer.write(input + ENDLINE);
+            writer.flush();
+            String reply = reader.readLine();
+            System.out.println(reply);
+            input = keyboardInput(consoleReader);
+        } while (!(input == null || END.equalsIgnoreCase(input.trim())));
+
+        writer.write(END + ENDLINE);
         writer.flush();
 
-        writer.write(END);
-        writer.flush();
+    }
 
-        String reply = reader.readLine();
-        System.out.println(reply);
+    private String keyboardInput(BufferedReader consoleReader) throws IOException {
+        System.out.print("Waiting for input: ");
+        return consoleReader.readLine();
     }
 }
