@@ -18,18 +18,33 @@ public class Game {
     }
 
     public String guess(String guess){
-
         if(guess.length() == 1){
             guesses.add(guess);
+
+            if(!guesses.contains(guess)){
+                numberOfMistakes ++;
+            }
+
+            return status();
         }else{
-
+            return handleWord(guess);
         }
+    }
 
-        return status();
+    public boolean haveWon(){
+        return !status().contains("-");
     }
 
     private String handleWord(String guessedWord){
-        return "";
+        if(guessedWord.equalsIgnoreCase(word)){
+            for (int i = 0; i < guessedWord.length(); i++){
+                guesses.add(guessedWord.charAt(i) + "");
+            }
+        }else{
+            numberOfMistakes++;
+        }
+
+        return status();
     }
 
     public String status(){
@@ -48,5 +63,7 @@ public class Game {
         return acc;
     }
 
-
+    public int getNumberOfMistakes() {
+        return numberOfMistakes;
+    }
 }
