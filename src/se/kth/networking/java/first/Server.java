@@ -27,9 +27,12 @@ public class Server {
     private void handleClient(Socket client) throws InterruptedException {
         executorService.execute(new ClientSocketHandler(client, new OnResponse<String>() {
             @Override
-            public void onResponse(String response) {
+            public String onResponse(String response) {
+
+
                 System.out.println("In server: " + response);
 
+                return "Something something";
             }
         }));
     }

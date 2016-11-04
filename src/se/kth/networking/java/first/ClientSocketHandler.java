@@ -37,31 +37,15 @@ public class ClientSocketHandler implements Runnable {
     }
 
     private void handle(BufferedReader reader, PrintWriter writer) throws IOException {
-        String acc = "";
-        String input = reader.readLine();
-
 
         //Read the message
         String str;
-        while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(input)) {
-            acc += str;
-            writer.write("Ack\n");
+        while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(str)) {
+            String res = onResponse.onResponse(str);
+            writer.write(res + "\n");
             writer.flush();
         }
 
-
-
-        /*
-        while (input != null && !END.equalsIgnoreCase(input)) {
-            System.out.println(input);
-            writer.write("Cabbage\n");
-            writer.flush();
-            input = reader.readLine();
-            acc += input;
-        }
-        */
-
-        onResponse.onResponse(acc);
         System.out.println("Finished communication with the client");
     }
 }
