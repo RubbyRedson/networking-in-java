@@ -9,9 +9,11 @@ import java.net.Socket;
 public class ClientSocketHandler implements Runnable {
     private Socket client;
     private static String END = "End";
+    private OnResponse<String> onResponse;
 
-    public ClientSocketHandler(Socket client) {
+    public ClientSocketHandler(Socket client, OnResponse<String> onResponse) {
         this.client = client;
+        this.onResponse = onResponse;
     }
 
     @Override
@@ -35,13 +37,31 @@ public class ClientSocketHandler implements Runnable {
     }
 
     private void handle(BufferedReader reader, PrintWriter writer) throws IOException {
+        String acc = "";
         String input = reader.readLine();
+
+
+        //Read the message
+        String str;
+        while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(input)) {
+            acc += str;
+            writer.write("Ack\n");
+            writer.flush();
+        }
+
+
+
+        /*
         while (input != null && !END.equalsIgnoreCase(input)) {
             System.out.println(input);
             writer.write("Cabbage\n");
             writer.flush();
             input = reader.readLine();
+            acc += input;
         }
+        */
+
+        onResponse.onResponse(acc);
         System.out.println("Finished communication with the client");
     }
 }
