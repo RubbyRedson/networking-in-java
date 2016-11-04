@@ -7,10 +7,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Nick on 11/2/2016.
