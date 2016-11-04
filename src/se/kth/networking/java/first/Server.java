@@ -35,15 +35,39 @@ public class Server {
         }
     }
 
+
+    private boolean isValidMessage(String msg){
+        return msg != null && msg.contains(":");
+    }
+
+    private String handleMessage(String clientMessage){
+
+        String response = "Bad request";
+
+        if(isValidMessage(clientMessage)){
+            String[] parts = clientMessage.split(":");
+
+            switch (parts[0]){
+                case "start_game":
+                    break;
+                case "give_up":
+                    break;
+                case "guess":
+                    break;
+                case "status":
+                    break;
+            }
+        }
+
+        return response;
+
+    }
+
     private void handleClient(Socket client) throws InterruptedException {
         executorService.execute(new ClientSocketHandler(client, new OnResponse<String>() {
             @Override
             public String onResponse(String response) {
-
-
-                System.out.println("In server: " + response);
-
-                return "Something something";
+                return handleMessage(response);
             }
         }));
     }
