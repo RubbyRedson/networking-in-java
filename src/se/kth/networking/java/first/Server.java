@@ -18,14 +18,13 @@ import java.util.concurrent.*;
 public class Server {
     private ServerSocket serverSocket;
     private ExecutorService executorService;
-    private SecureRandom random;
-    private List<String> words;
+    private GameHandler gameHandler;
 
     public Server(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        this.words = new ArrayList<>();
-        this.random = new SecureRandom();
         this.executorService = Executors.newFixedThreadPool(5);
+        gameHandler = new GameHandler();
+        gameHandler.readWords();
     }
 
     public void start() throws IOException, InterruptedException {
@@ -39,7 +38,7 @@ public class Server {
         return msg != null && msg.contains(":");
     }
 
-    private String handleMessage(String clientMessage){
+    private String handleMessage(String clientMessage, String username){
 
         String response = "Bad request";
 
@@ -48,12 +47,16 @@ public class Server {
 
             switch (parts[0]){
                 case "start_game":
+                    response = gameHandler.startANewGame(username);
                     break;
                 case "give_up":
+                    response = gameHandler.giveUp(username);
                     break;
                 case "guess":
+                    response = gameHandler.guess(username, parts[1]);
                     break;
                 case "status":
+                    response = gameHandler.status(username);
                     break;
             }
         }
@@ -64,8 +67,8 @@ public class Server {
     private void handleClient(Socket client) throws InterruptedException {
         executorService.execute(new ClientSocketHandler(client, new OnResponse<String>() {
             @Override
-            public String onResponse(String response) {
-                return handleMessage(response);
+            public String onResponse(String response, String username) {
+                return handleMessage(response, username);
             }
         }));
     }
@@ -73,25 +76,9 @@ public class Server {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.valueOf(args[0]);
         Server server = new Server(port);
-        server.readWords();
         server.start();
     }
 
-    public void readWords() throws IOException {
-        String line;
-        URL url = getClass().getResource("words.txt");
-        try (
-                InputStream fis = new FileInputStream(new File(url.getPath()));
-                InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-                BufferedReader br = new BufferedReader(isr);
-        ) {
-            while ((line = br.readLine()) != null) {
-                words.add(line);
-            }
-        }
-    }
 
-    private String selectRandomWord() {
-        return words.get(random.nextInt(words.size())).toLowerCase().trim();
-    }
+
 }

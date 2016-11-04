@@ -38,10 +38,12 @@ public class ClientSocketHandler implements Runnable {
 
     private void handle(BufferedReader reader, PrintWriter writer) throws IOException {
 
+        String username = client.getInetAddress().getHostName() + ":" + client.getPort();
+
         //Read the message
         String str;
         while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(str)) {
-            String res = onResponse.onResponse(str);
+            String res = onResponse.onResponse(str, username);
             writer.write(res + "\n");
             writer.flush();
         }
