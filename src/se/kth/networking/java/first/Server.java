@@ -35,6 +35,14 @@ public class Server {
         }
     }
 
+    public void shutdown() {
+        try {
+            this.executorService.shutdown();
+            this.serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private boolean isValidMessage(String msg){
         return msg != null && msg.contains(":");
@@ -46,11 +54,11 @@ public class Server {
 
         if(isValidMessage(clientMessage)){
             String[] parts = clientMessage.split(":");
-
             switch (parts[0]){
                 case "start_game":
                     break;
                 case "give_up":
+                    response = "gave over!";
                     break;
                 case "guess":
                     break;
@@ -93,7 +101,11 @@ public class Server {
         }
     }
 
-    private String selectRandomWord() {
+    public String selectRandomWord() {
         return words.get(random.nextInt(words.size())).toLowerCase().trim();
+    }
+
+    int wordCount() {
+        return words.size();
     }
 }
