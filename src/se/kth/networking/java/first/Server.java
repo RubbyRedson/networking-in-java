@@ -17,14 +17,13 @@ import java.util.concurrent.Executors;
 public class Server {
     private ServerSocket serverSocket;
     private ExecutorService executorService;
-    private SecureRandom random;
-    private List<String> words;
+    private GameHandler gameHandler;
 
     public Server(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        this.words = new ArrayList<>();
-        this.random = new SecureRandom();
         this.executorService = Executors.newFixedThreadPool(5);
+        gameHandler = new GameHandler();
+        gameHandler.readWords();
     }
 
     public void start() throws IOException, InterruptedException {
@@ -47,7 +46,7 @@ public class Server {
         return msg != null && msg.contains(":");
     }
 
-    private String handleMessage(String clientMessage){
+    private String handleMessage(String clientMessage, String username){
 
         String response = "Bad request";
 
@@ -55,13 +54,17 @@ public class Server {
             String[] parts = clientMessage.split(":");
             switch (parts[0]){
                 case "start_game":
+                    response = gameHandler.startANewGame(username);
                     break;
                 case "give_up":
                     response = "gave over!";
+                    response = gameHandler.giveUp(username);
                     break;
                 case "guess":
+                    response = gameHandler.guess(username, parts[1]);
                     break;
                 case "status":
+                    response = gameHandler.status(username);
                     break;
             }
         }
@@ -82,29 +85,9 @@ public class Server {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.valueOf(args[0]);
         Server server = new Server(port);
-        server.readWords();
         server.start();
     }
 
-    public void readWords() throws IOException {
-        String line;
-        URL url = getClass().getResource("words.txt");
-        try (
-                InputStream fis = new FileInputStream(new File(url.getPath()));
-                InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-                BufferedReader br = new BufferedReader(isr);
-        ) {
-            while ((line = br.readLine()) != null) {
-                words.add(line);
-            }
-        }
-    }
 
-    public String selectRandomWord() {
-        return words.get(random.nextInt(words.size())).toLowerCase().trim();
-    }
 
-    int wordCount() {
-        return words.size();
-    }
 }
