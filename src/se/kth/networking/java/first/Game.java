@@ -8,9 +8,10 @@ import java.util.List;
  */
 public class Game {
 
-    String word;
-    int numberOfMistakes;
-    List<String> guesses;
+    private String word;
+    private int numberOfMistakes;
+    private List<String> guesses;
+    private static int MAX_MISTAKES = 10;
 
     public Game(String word){
         this.word = word;
@@ -21,7 +22,7 @@ public class Game {
         if(guess.length() == 1){
             guesses.add(guess);
 
-            if(!guesses.contains(guess)){
+            if(!word.contains(guess)){
                 numberOfMistakes ++;
             }
 
@@ -65,5 +66,13 @@ public class Game {
 
     public int getNumberOfMistakes() {
         return numberOfMistakes;
+    }
+
+    public int remainingMistakes() {
+        return MAX_MISTAKES - getNumberOfMistakes();
+    }
+
+    public String getWord() {
+        return word;
     }
 }

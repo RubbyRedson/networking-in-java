@@ -13,19 +13,12 @@ import static org.junit.Assert.assertNotNull;
  * Created by Nick on 11/4/2016.
  */
 public class GameHandlerTest {
-    GameHandler gameHandler;
+    private GameHandler gameHandler;
 
     @Before
     public void setup() {
-            gameHandler = new GameHandler();
-
+        gameHandler = new GameHandler();
     }
-//
-//    @After
-//    public void shutdown() throws IOException {
-//        server.shutdown();
-//    }
-
 
     @Test
     public void testReadWords() throws IOException {

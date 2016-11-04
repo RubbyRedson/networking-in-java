@@ -37,7 +37,7 @@ public class Server {
     }
 
     private boolean isValidMessage(String msg){
-        return msg != null && msg.contains(":");
+        return msg != null && !msg.trim().equalsIgnoreCase(":") && msg.contains(":");
     }
 
     private String handleMessage(String clientMessage, String username){
@@ -51,14 +51,16 @@ public class Server {
                     response = gameHandler.startANewGame(username);
                     break;
                 case "give_up":
-                    response = "gave over!";
                     response = gameHandler.giveUp(username);
                     break;
                 case "guess":
-                    response = gameHandler.guess(username, parts[1]);
+                    response = gameHandler.guess(username, parts[1].trim());
                     break;
                 case "status":
                     response = gameHandler.status(username);
+                    break;
+                case "error":
+                    gameHandler.error(username);
                     break;
             }
         }

@@ -31,21 +31,25 @@ public class ClientSocketHandler implements Runnable {
             if (reader != null) try {
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println(e.getCause() + " " + e.getMessage());
             }
         }
     }
 
-    private void handle(BufferedReader reader, PrintWriter writer) throws IOException {
+    private void handle(BufferedReader reader, PrintWriter writer) {
 
         String username = client.getInetAddress().getHostName() + ":" + client.getPort();
 
         //Read the message
         String str;
-        while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(str)) {
-            String res = onResponse.onResponse(str, username);
-            writer.write(res + "\n");
-            writer.flush();
+        try {
+            while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(str)) {
+                String res = onResponse.onResponse(str, username);
+                writer.write(res + "\n");
+                writer.flush();
+            }
+        } catch (IOException e) {
+            onResponse.onResponse("error:", username);
         }
 
         System.out.println("Finished communication with the client");
