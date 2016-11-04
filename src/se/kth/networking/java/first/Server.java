@@ -1,8 +1,15 @@
 package se.kth.networking.java.first;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -11,9 +18,13 @@ import java.util.concurrent.*;
 public class Server {
     private ServerSocket serverSocket;
     private ExecutorService executorService;
+    private SecureRandom random;
+    private List<String> words;
 
     public Server(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
+        this.words = new ArrayList<>();
+        this.random = new SecureRandom();
         this.executorService = Executors.newFixedThreadPool(5);
     }
 
@@ -40,8 +51,25 @@ public class Server {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.valueOf(args[0]);
         Server server = new Server(port);
+        server.readWords();
         server.start();
     }
 
+    public void readWords() throws IOException {
+        String line;
+        URL url = getClass().getResource("words.txt");
+        try (
+                InputStream fis = new FileInputStream(new File(url.getPath()));
+                InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
+                BufferedReader br = new BufferedReader(isr);
+        ) {
+            while ((line = br.readLine()) != null) {
+                words.add(line);
+            }
+        }
+    }
 
+    private String selectRandomWord() {
+        return words.get(random.nextInt(words.size())).toLowerCase().trim();
+    }
 }
