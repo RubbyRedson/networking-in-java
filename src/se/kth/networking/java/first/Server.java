@@ -35,7 +35,6 @@ public class Server {
         }
     }
 
-
     private boolean isValidMessage(String msg){
         return msg != null && msg.contains(":");
     }
@@ -60,7 +59,6 @@ public class Server {
         }
 
         return response;
-
     }
 
     private void handleClient(Socket client) throws InterruptedException {
