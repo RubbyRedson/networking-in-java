@@ -1,13 +1,8 @@
 package se.kth.networking.java.first;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,7 +18,6 @@ public class Server {
         this.serverSocket = new ServerSocket(port);
         this.executorService = Executors.newFixedThreadPool(5);
         gameHandler = new GameHandler();
-        gameHandler.readWords();
     }
 
     public void start() throws IOException, InterruptedException {
@@ -76,8 +70,8 @@ public class Server {
     private void handleClient(Socket client) throws InterruptedException {
         executorService.execute(new ClientSocketHandler(client, new OnResponse<String>() {
             @Override
-            public String onResponse(String response) {
-                return handleMessage(response);
+            public String onResponse(String response, String username) {
+                return handleMessage(response, username);
             }
         }));
     }

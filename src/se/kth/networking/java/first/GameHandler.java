@@ -18,9 +18,14 @@ public class GameHandler {
     public GameHandler(){
         this.words = new ArrayList<>();
         this.random = new SecureRandom();
+        try {
+            this.readWords();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void readWords() throws IOException {
+    private void readWords() throws IOException {
         String line;
         URL url = getClass().getResource("words.txt");
         try (
@@ -34,8 +39,12 @@ public class GameHandler {
         }
     }
 
-    private String selectRandomWord() {
+    String selectRandomWord() {
         return words.get(random.nextInt(words.size())).toLowerCase().trim();
+    }
+
+    int wordCount() {
+        return words.size();
     }
 
     public String startANewGame(String username){
