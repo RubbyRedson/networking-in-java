@@ -45,6 +45,9 @@ public class Client {
         //The server always listens on the same port, so we can use the socket for this purpose
         String ip=(((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
         Node serverNode = new Node(ip, socket.getPort());
-        onResponse.onResponse(reply, serverNode);
+
+        if(onResponse != null){
+            onResponse.onResponse(reply, serverNode);
+        }
     }
 }

@@ -57,6 +57,7 @@ public class ClientSocketHandler implements Runnable {
                 writer.flush();
             }
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             onResponse.onResponse("error:" + e.getMessage(), null);
         }
 

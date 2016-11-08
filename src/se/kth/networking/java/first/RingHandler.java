@@ -11,14 +11,42 @@ public class RingHandler {
 
     Node predecessor;
     Node successor;
-    private int serverId;
+    Node self;
     private int port;
     private String ip;
 
     public RingHandler(String ip, int port){
-        serverId = ("127.0.0.1" + port).hashCode();
         this.ip = ip;
         this.port = port;
+        this.self = new Node(ip, port);
+    }
+
+    public void probe(){
+        try {
+            String msg = "probe:" + self.getIp() + "," + self.getPort() + "," + self.toString();
+            Client c = new Client(successor.getAsSocket(), msg, null);
+            c.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void handleProbe(String clientMessage, Node node){
+        String[] parts = clientMessage.split(":");
+        String[] args = parts[1].split(",");
+
+        Node initiator = new Node(args[0], Integer.parseInt(args[1]));
+        if(initiator.getId() == self.getId()){
+            System.out.println("I got it back from the ring, " + clientMessage);
+        }else{
+            try {
+                String msg = clientMessage + "," + self.toString();
+                Client c = new Client(successor.getAsSocket(), msg, null);
+                c.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void sendNotify(String rIp, int rPort){
@@ -53,7 +81,7 @@ public class RingHandler {
         }else{
 
             //This should be our new predecessor
-            if(between(n.getId(), predecessor.getId(), serverId)){
+            if(between(n.getId(), predecessor.getId(), self.getId())){
                 predecessor = n;
                 return "accept";
             }else{
@@ -70,10 +98,6 @@ public class RingHandler {
         }else {
             return true;
         }
-    }
-
-    public int getServerId() {
-        return serverId;
     }
 
     public int getPort() {

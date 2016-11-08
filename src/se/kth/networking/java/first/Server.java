@@ -46,6 +46,9 @@ public class Server {
                 case "notify":
                     response = ringHandler.notifyPredecessor(node);
                     break;
+                case "probe":
+                    ringHandler.handleProbe(clientMessage, node);
+                    break;
             }
         }
 
@@ -54,6 +57,10 @@ public class Server {
 
     public void sendNotify(String ip, int port){
         ringHandler.sendNotify(ip, port);
+    }
+
+    public void probe(){
+        ringHandler.probe();
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -75,6 +82,8 @@ public class Server {
         server3.sendNotify(server1.getRingHandler().getIp(), server1.getRingHandler().getPort());
 
         Thread.sleep(3000);
+
+        server1.probe();
         System.out.println("done");
     }
 
