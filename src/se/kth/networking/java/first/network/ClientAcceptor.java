@@ -1,4 +1,6 @@
-package se.kth.networking.java.first;
+package se.kth.networking.java.first.network;
+
+import se.kth.networking.java.first.models.OnResponse;
 
 import java.io.IOException;
 import java.net.ServerSocket;

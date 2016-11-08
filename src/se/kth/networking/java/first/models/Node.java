@@ -1,4 +1,4 @@
-package se.kth.networking.java.first;
+package se.kth.networking.java.first.models;
 
 import org.json.JSONObject;
 

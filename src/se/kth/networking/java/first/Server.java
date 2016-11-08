@@ -1,10 +1,11 @@
 package se.kth.networking.java.first;
 
+import se.kth.networking.java.first.models.Node;
+import se.kth.networking.java.first.models.OnResponse;
+import se.kth.networking.java.first.network.ClientAcceptor;
+import se.kth.networking.java.first.ring.RingHandler;
+
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Nick on 11/2/2016.

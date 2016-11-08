@@ -1,9 +1,6 @@
 package se.kth.networking.java.first;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
+import se.kth.networking.java.first.ring.RingHandler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

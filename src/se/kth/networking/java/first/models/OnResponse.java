@@ -1,4 +1,4 @@
-package se.kth.networking.java.first;
+package se.kth.networking.java.first.models;
 
 /**
  * Created by victoraxelsson on 2016-11-04.
