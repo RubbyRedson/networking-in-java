@@ -63,7 +63,5 @@ public class ClientSocketHandler implements Runnable {
             System.out.println(e.getMessage());
             onResponse.onResponse("error:" + e.getMessage(), null);
         }
-
-        System.out.println("Finished communication with the client");
     }
 }

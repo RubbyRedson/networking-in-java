@@ -50,6 +50,9 @@ public class Server {
                 case "probe":
                     ringHandler.handleProbe(clientMessage, node);
                     break;
+                case "request":
+                    response = ringHandler.onRequest(clientMessage, node);
+                    break;
             }
         }
 
@@ -78,10 +81,10 @@ public class Server {
         Server server3 = new Server(7070);
         server3.start();
 
-        server1.sendNotify(server2.getRingHandler().getIp(), server2.getRingHandler().getPort());
-        server2.sendNotify(server3.getRingHandler().getIp(), server3.getRingHandler().getPort());
+        //server1.sendNotify(server2.getRingHandler().getIp(), server2.getRingHandler().getPort());
+        server2.sendNotify(server1.getRingHandler().getIp(), server1.getRingHandler().getPort());
+        Thread.sleep(3000);
         server3.sendNotify(server1.getRingHandler().getIp(), server1.getRingHandler().getPort());
-
         Thread.sleep(3000);
 
         server1.probe();

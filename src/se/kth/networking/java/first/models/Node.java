@@ -20,6 +20,13 @@ public class Node {
         this.port = port;
     }
 
+    public Node(String json){
+        JSONObject obj = new JSONObject(json);
+        this.ip = obj.optString("ip");
+        this.port = obj.optInt("port");
+        id = (this.ip + this.port).hashCode();
+    }
+
     public int getId() {
         return id;
     }
@@ -44,4 +51,5 @@ public class Node {
         obj.put("port", port);
         return obj.toString();
     }
+
 }
