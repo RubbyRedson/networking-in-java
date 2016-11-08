@@ -10,27 +10,23 @@ import java.util.concurrent.Executors;
  * Created by Nick on 11/2/2016.
  */
 public class Server {
-    private ServerSocket serverSocket;
-    private ExecutorService executorService;
-    private GameHandler gameHandler;
 
-    public Server(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
-        this.executorService = Executors.newFixedThreadPool(5);
-        gameHandler = new GameHandler();
-    }
+    private RingHandler ringHandler;
+    private ClientAcceptor acceptor;
 
-    public void start() throws IOException, InterruptedException {
-        while(true) {
-            Socket client = serverSocket.accept();
-            handleClient(client);
-        }
-    }
 
-    public void shutdown() {
+    public Server(int port) {
+
+        //Please fix dynamic ip
+        ringHandler = new RingHandler("127.0.0.1", port);
+
         try {
-            this.executorService.shutdown();
-            this.serverSocket.close();
+            acceptor = new ClientAcceptor(port, new OnResponse<String>(){
+                @Override
+                public String onResponse(String response, Node node) {
+                    return handleMessage(response, node);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -40,50 +36,53 @@ public class Server {
         return msg != null && !msg.trim().equalsIgnoreCase(":") && msg.contains(":");
     }
 
-    private String handleMessage(String clientMessage, String username){
+    private String handleMessage(String clientMessage, Node node){
 
         String response = "Bad request";
 
         if(isValidMessage(clientMessage)){
             String[] parts = clientMessage.split(":");
             switch (parts[0]){
-                case "start_game":
-                    response = gameHandler.startANewGame(username);
-                    break;
-                case "give_up":
-                    response = gameHandler.giveUp(username);
-                    break;
-                case "guess":
-                    response = gameHandler.guess(username, parts[1].trim());
-                    break;
-                case "status":
-                    response = gameHandler.status(username);
-                    break;
-                case "error":
-                    gameHandler.error(username);
+                case "notify":
+                    response = ringHandler.notifyPredecessor(node);
                     break;
             }
         }
 
         return response;
-
     }
 
-    private void handleClient(Socket client) throws InterruptedException {
-        executorService.execute(new ClientSocketHandler(client, new OnResponse<String>() {
-            @Override
-            public String onResponse(String response, String username) {
-                return handleMessage(response, username);
-            }
-        }));
+    public void sendNotify(String ip, int port){
+        ringHandler.sendNotify(ip, port);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.valueOf(args[0]);
-        Server server = new Server(port);
-        server.start();
+
+        Server server1 = new Server(5050);
+        server1.start();
+
+        Server server2 = new Server(6060);
+        server2.start();
+
+        Thread.sleep(3000);
+
+        Server server3 = new Server(7070);
+        server3.start();
+
+        server1.sendNotify(server2.getRingHandler().getIp(), server2.getRingHandler().getPort());
+        server2.sendNotify(server3.getRingHandler().getIp(), server3.getRingHandler().getPort());
+        server3.sendNotify(server1.getRingHandler().getIp(), server1.getRingHandler().getPort());
+
+        Thread.sleep(3000);
+        System.out.println("done");
     }
 
+    private void start() {
+        acceptor.start();
+    }
 
-
+    public RingHandler getRingHandler() {
+        return ringHandler;
+    }
 }

@@ -13,21 +13,7 @@ import static org.junit.Assert.assertNotNull;
 public class ServerTest {
     Server server;
 
-    @Before
-    public void setup() throws IOException {
-        try {
-            server = new Server(9090);
-//            server.readWords();
-        } catch (IOException e) {
-            server = new Server(9091);
-//            server.readWords();
-        }
-    }
 
-    @After
-    public void shutdown() throws IOException {
-        server.shutdown();
-    }
 
 //    @Test
 //    public void testReadWords() throws IOException {

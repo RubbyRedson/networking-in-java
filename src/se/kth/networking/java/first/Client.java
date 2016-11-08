@@ -1,6 +1,7 @@
 package se.kth.networking.java.first;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -10,19 +11,16 @@ public class Client {
     private Socket socket;
     private static String ENDLINE = "\n";
     private static String END = "End";
+    private String payload;
+    private OnResponse<String> onResponse;
 
-    public Client(Socket socket) {
+
+    public Client(Socket socket, String payload, OnResponse<String> onResponse) {
         this.socket = socket;
+        this.payload = payload;
+        this.onResponse = onResponse;
     }
 
-    public static void main(String[] args) throws IOException {
-        if (args.length >= 2) {
-            String host = args[0];
-            int port = Integer.valueOf(args[1]);
-            Client client = new Client(new Socket(host, port));
-            client.start();
-        }
-    }
 
     public void start() throws IOException {
         BufferedReader reader = null;
@@ -40,24 +38,13 @@ public class Client {
     }
 
     private void handleClient(BufferedReader reader, PrintWriter writer) throws IOException {
-        BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-        String input = keyboardInput(consoleReader);
-
-        do {
-            writer.write(input + ENDLINE);
-            writer.flush();
-            String reply = reader.readLine();
-            System.out.println(reply);
-            input = keyboardInput(consoleReader);
-        } while (!(input == null || END.equalsIgnoreCase(input.trim())));
-
-        writer.write(END + ENDLINE);
+        writer.write(payload + ENDLINE);
         writer.flush();
+        String reply = reader.readLine();
 
-    }
-
-    private String keyboardInput(BufferedReader consoleReader) throws IOException {
-        System.out.print("Waiting for input: ");
-        return consoleReader.readLine();
+        //The server always listens on the same port, so we can use the socket for this purpose
+        String ip=(((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
+        Node serverNode = new Node(ip, socket.getPort());
+        onResponse.onResponse(reply, serverNode);
     }
 }

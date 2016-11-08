@@ -36,20 +36,28 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
+    private String deliverMessage(String msg){
+
+        //Do the message parsing
+        String[] parts = msg.split(":");
+        String[] msgArgs = parts[1].split(",");
+
+        Node n = new Node(msgArgs[0], Integer.parseInt(msgArgs[1]));
+
+        return  onResponse.onResponse(msg, n);
+    }
+
     private void handle(BufferedReader reader, PrintWriter writer) {
-
-        String username = client.getInetAddress().getHostName() + ":" + client.getPort();
-
         //Read the message
         String str;
         try {
             while ((str = reader.readLine()) != null && !END.equalsIgnoreCase(str)) {
-                String res = onResponse.onResponse(str, username);
+                String res = deliverMessage(str);
                 writer.write(res + "\n");
                 writer.flush();
             }
         } catch (IOException e) {
-            onResponse.onResponse("error:", username);
+            onResponse.onResponse("error:" + e.getMessage(), null);
         }
 
         System.out.println("Finished communication with the client");
