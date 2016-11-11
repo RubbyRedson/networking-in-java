@@ -1,7 +1,7 @@
-package se.kth.second;
+package se.kth.networking.java.second;
 
 import se.kth.networking.java.first.Client;
-import se.kth.second.models.Item;
+import se.kth.networking.java.second.models.Item;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by victoraxelsson on 2016-11-11.
  */
-public class Marketplace implements MarketplaceInterface{
+public class Marketplace implements MarketplaceInterface {
 
     public static void main(String[] args){
         Marketplace server = new Marketplace();

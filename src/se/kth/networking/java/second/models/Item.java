@@ -1,4 +1,4 @@
-package se.kth.second.models;
+package se.kth.networking.java.second.models;
 
 /**
  * Created by victoraxelsson on 2016-11-11.
