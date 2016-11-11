@@ -7,22 +7,24 @@ import se.kth.id2212.ex2.bankrmi.RejectedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.StringTokenizer;
 
-public class Client {
-    private static final String USAGE = "java bankrmi.Client <bank_url>";
-    private static final String DEFAULT_BANK_NAME = "Nordea";
-    Account account;
-    Bank bankobj;
-    private String bankname;
+public class Client implements Serializable {
+    private static final transient String USAGE = "java bankrmi.Client <bank_url>";
+    private static final transient String DEFAULT_BANK_NAME = "Nordea";
+    transient Account account;
+    transient Bank bankobj;
+    transient MarketplaceInterface marketplaceobj;
+    private transient String bankname;
     String clientname;
 
     static enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
-        buy, sell, wish, register, unregsiter, inspect,                             //Marketplace commands
+        buy, sell, wish, register, unregister, inspect,                             //Marketplace commands
         quit, help;                                                                 //Utility commands
 
         static boolean isBankingCommand(CommandName command) {
@@ -41,12 +43,12 @@ public class Client {
 
         static boolean isMarketplaceCommand(CommandName command) {
             switch (command) {
-                case buy:
-                case sell:
-                case wish:
-                case register:
-                case unregsiter:
-                case inspect:
+                case buy: // buy MyMarketPlaceName AccountName GoodName MaxGoodPrice
+                case sell: // sell MyMarketPlaceName GoodName GoodPrice
+                case wish: // wish MyMarketPlaceName GoodName MaxGoodPrice
+                case register: // register MyMarketPlaceName
+                case unregister: // unregister MyMarketPlaceName
+                case inspect: // inspect MyMarketPlaceName
                     return true;
             }
             return false;
@@ -64,6 +66,7 @@ public class Client {
                 LocateRegistry.createRegistry(1099);
             }
             bankobj = (Bank) Naming.lookup(bankname);
+            marketplaceobj = (MarketplaceInterface) Naming.lookup("marketplace"); //TODO constant
         } catch (Exception e) {
             System.out.println("The runtime failed: " + e.getMessage());
             System.exit(0);
@@ -241,9 +244,31 @@ public class Client {
             switch (command.getCommandName()) {
                 case register:
                     //TODO call to marketplaceobj register
+                    System.out.println("Inside register " + command);
+                    marketplaceobj.registerClient(command.getUserName(), this);
                     return;
-                case unregsiter:
+                case unregister:
                     //TODO call to marketplaceobj register
+                    System.out.println("Inside unregister " + command);
+                    marketplaceobj.unregisterClient(command.getUserName(), this);
+                    return;
+
+                //these would require the client to be registered
+                case inspect:
+                    //TODO call to marketplaceobj register
+                    System.out.println("Inside inspect " + command);
+                    return;
+                case buy:
+                    //TODO call to marketplaceobj register
+                    System.out.println("Inside buy " + command);
+                    return;
+                case sell:
+                    //TODO call to marketplaceobj register
+                    System.out.println("Inside sell " + command);
+                    return;
+                case wish:
+                    //TODO call to marketplaceobj register
+                    System.out.println("Inside wish " + command);
                     return;
             }
 
@@ -311,6 +336,17 @@ public class Client {
 
         public void setGoodName(String goodName) {
             this.goodName = goodName;
+        }
+
+        @Override
+        public String toString() {
+            return "Command{" +
+                    "userName='" + userName + '\'' +
+                    ", amount=" + amount +
+                    ", commandName=" + commandName +
+                    ", goodName='" + goodName + '\'' +
+                    ", goodValue=" + goodValue +
+                    '}';
         }
     }
 

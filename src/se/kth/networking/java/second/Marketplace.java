@@ -1,6 +1,5 @@
 package se.kth.networking.java.second;
 
-import se.kth.networking.java.first.Client;
 import se.kth.networking.java.second.models.Item;
 
 import java.rmi.AlreadyBoundException;
@@ -32,9 +31,7 @@ public class Marketplace implements MarketplaceInterface {
             try {
                 registry = LocateRegistry.createRegistry(1099);
                 registry.bind("marketplace", marketplace);
-            } catch (RemoteException e1) {
-                e1.printStackTrace();
-            } catch (AlreadyBoundException e1) {
+            } catch (RemoteException | AlreadyBoundException e1) {
                 e1.printStackTrace();
             }
         } catch (AlreadyBoundException e) {
@@ -52,12 +49,13 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void registerClient(Client client) {
-
+    public void registerClient(String userName, Client client) {
+        System.out.println("register in marketplace " + userName);
     }
 
     @Override
-    public void unregisterClient(Client client) {
+    public void unregisterClient(String userName, Client client) {
+        System.out.println("unregister in marketplace " + userName);
 
     }
 
