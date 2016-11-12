@@ -16,5 +16,6 @@ public interface MarketplaceInterface extends Remote {
     void unregisterClient(String userName, Client client) throws RemoteException;
     void sellItem(Item item) throws RemoteException;
     boolean buyItem(String buyer, Item item) throws RemoteException;
-    List<Item> listItems() throws RemoteException;
+    List<StoreItem> listItems() throws RemoteException;
+    void wishItem(Wish wish) throws RemoteException;
 }
