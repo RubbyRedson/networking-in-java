@@ -19,12 +19,12 @@ public class Marketplace implements MarketplaceInterface {
     HashMap<String, Client> clients;
     List<Item> store;
 
-    public Marketplace(){
+    public Marketplace() {
         clients = new HashMap<>();
         store = new ArrayList<>();
     }
 
-    private static Registry lazyCreateRegistry(Marketplace server){
+    private static Registry lazyCreateRegistry(Marketplace server) {
         Registry registry = null;
         MarketplaceInterface marketplace = null;
         try {
@@ -50,7 +50,7 @@ public class Marketplace implements MarketplaceInterface {
         return registry;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Marketplace server = new Marketplace();
         Registry registry = lazyCreateRegistry(server);
         System.out.println("Grvy");
@@ -75,21 +75,21 @@ public class Marketplace implements MarketplaceInterface {
 
         //Remove all items that have the same client?
         //Start by collecting all items that this client is selling
-        for (int i = 0; i < store.size(); i++){
-            if(store.get(i).getSeller().getClientname().equalsIgnoreCase(userName)){
+        for (int i = 0; i < store.size(); i++) {
+            if (store.get(i).getSeller().getClientname().equalsIgnoreCase(userName)) {
                 toBeRemoved.add(store.get(i));
             }
         }
 
         //Then collect all this client is buying
-        for (int i = 0; i < store.size(); i++){
-            if(store.get(i).getBuyer() != null &&  store.get(i).getBuyer().getClientname().equalsIgnoreCase(userName)){
+        for (int i = 0; i < store.size(); i++) {
+            if (store.get(i).getBuyer() != null && store.get(i).getBuyer().getClientname().equalsIgnoreCase(userName)) {
                 toBeRemoved.add(store.get(i));
             }
         }
 
         //Remove all items
-        for (int i = 0; i < toBeRemoved.size(); i++){
+        for (int i = 0; i < toBeRemoved.size(); i++) {
             store.remove(toBeRemoved.get(i));
         }
     }
@@ -100,17 +100,20 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void buyItem(String buyer, Item item) {
-
-        for (int i = 0; i < store.size(); i++){
-            if(store.get(i).getName().equalsIgnoreCase(item.getName())){
+    public boolean buyItem(String buyer, Item item) {
+        Client buyerClient = clients.get(buyer);
+        for (int i = 0; i < store.size(); i++) {
+            if (store.get(i).getName().equalsIgnoreCase(item.getName()) && item.getBuyer() == null) {
                 item = store.get(i);
-                item.setBuyer(clients.get(buyer));
-                store.set(i, item);
+                if (buyerClient != null && buyerClient.tryBuy(item)) {
+                    item.setBuyer(buyerClient);
+                    store.set(i, item);
+                    item.getSeller().youHaveABuyer(item);
+                    return true;
+                }
             }
         }
-
-        item.getSeller().youHaveABuyer(item);
+        return false;
     }
 
     @Override

@@ -1,12 +1,13 @@
 package se.kth.id2212.ex2.bankrmi;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class BankImpl extends UnicastRemoteObject implements Bank {
+public class BankImpl extends UnicastRemoteObject implements Bank, Serializable {
     private String bankName;
     private Map<String, Account> accounts = new HashMap<>();
 

@@ -19,9 +19,9 @@ public class Client implements Serializable {
     private static final transient String USAGE = "java bankrmi.Client <bank_url>";
     private static final transient String DEFAULT_BANK_NAME = "Nordea";
     transient Account account;
-    transient Bank bankobj;
+    Bank bankobj;
     transient MarketplaceInterface marketplaceobj;
-    private transient String bankname;
+    private String bankname;
     String clientname;
 
     static enum CommandName {
@@ -87,8 +87,34 @@ public class Client implements Serializable {
     }
 
     public void youHaveABuyer(Item item){
-        System.out.println("Now what?");
-        System.out.println(item);
+        try {
+            bankobj.getAccount(clientname).deposit(item.getPrice());
+            System.out.println(item.toString() + " was bought");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (RejectedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean tryBuy(Item item) {
+        if (item == null) return false;
+        try {
+            if (bankobj.getAccount(clientname).getBalance() >= item.getPrice()) {
+                bankobj.getAccount(clientname).withdraw(item.getPrice());
+                System.out.println("You bought " + item);
+                return true;
+            } else {
+                System.out.println("Not enough funds!");
+                return false;
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        } catch (RejectedException e) {
+            System.out.println("Not enough funds!");
+            return false;
+        }
     }
 
     public void run() {
@@ -274,14 +300,16 @@ public class Client implements Serializable {
                     }
                     return;
                 case buy:
-                    //TODO call to marketplaceobj buy
-                    System.out.println("Inside buy " + command);
+                    if (marketplaceobj.buyItem(getClientname(), new Item(command.getGoodName(), Float.MIN_VALUE, this))) {
+                        System.out.println("You bought a " + command.getGoodName());
+                    } else {
+                        System.out.println("You were not able to buy a " + command.getGoodName());
+                    }
                     return;
                 case sell:
 
                     Item item = new Item(command.goodName, command.goodValue, this);
                     marketplaceobj.sellItem(item);
-                    System.out.println("Inside sell " + command);
                     return;
                 case wish:
                     //TODO call to marketplaceobj wish
@@ -384,9 +412,13 @@ public class Client implements Serializable {
 
     private static boolean isCommandValid(Command command) {
         if (command == null) return false;
+        System.out.println(command);
         if (CommandName.isBankingCommand(command.getCommandName())) {
-            if (command.getGoodName() != null || !command.getGoodName().isEmpty()) return false;
-            if (command.getGoodValue() != Float.MIN_VALUE) return false;
+//            System.out.println(1);
+//            if (command.getGoodName() != null) return false;
+//            System.out.println(2);
+//            if (command.getGoodValue() != Float.MIN_VALUE) return false;
+//            System.out.println(3);
             switch (command.getCommandName()) {
                 case newAccount:
                 case deleteAccount:
@@ -396,7 +428,7 @@ public class Client implements Serializable {
                     return true;
                 case deposit:
                 case withdraw:
-                    if (command.getAmount() < 0) return false;
+                    if (command.getAmount() < 0 || command.getAmount() == Float.MIN_VALUE) return false;
             }
         }
         else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
@@ -405,22 +437,22 @@ public class Client implements Serializable {
                 case register:
                 case unregister:
                 case inspect:
-                    if (command.getGoodName() != null || !command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodName() != null) return false;
                     if (command.getGoodValue() != Float.MIN_VALUE) return false;
                     return true;
                 case buy:
                 case wish: //TODO Check syntax
-                    if (command.getGoodName() == null || command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodName() == null) return false;
                     if (command.getGoodValue() != Float.MIN_VALUE) return false;
                     else return true;
                 case sell:
-                    if (command.getGoodName() == null || command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodName() == null) return false;
                     if (command.getGoodValue() == Float.MIN_VALUE || command.getGoodValue() <= 0) return false;
                     else return true;
             }
 
         }
-        return false;
+        return true;
     }
 
 }
