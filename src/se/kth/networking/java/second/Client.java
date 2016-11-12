@@ -4,6 +4,8 @@ import se.kth.id2212.ex2.bankrmi.Account;
 import se.kth.id2212.ex2.bankrmi.Bank;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
 import se.kth.networking.java.second.models.Item;
+import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.second.models.Wish;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -89,6 +91,10 @@ public class Client implements Serializable {
     public void youHaveABuyer(Item item){
         System.out.println("Now what?");
         System.out.println(item);
+    }
+
+    public void someoneIsSellingYouWish(Wish wish, Item item){
+        System.out.println("Someone is selling you wish: " + item.print());
     }
 
     public void run() {
@@ -271,9 +277,9 @@ public class Client implements Serializable {
                     //TODO call to marketplaceobj register
 
                     System.out.println("I have " + marketplaceobj.listItems().size() + " items in the store");
-                    List<Item> store = marketplaceobj.listItems();
+                    List<StoreItem> store = marketplaceobj.listItems();
                     for (int i = 0; i < store.size(); i++){
-                        System.out.println(store.get(i).toString());
+                        System.out.println(store.get(i).print());
                     }
 
                     return;
@@ -290,11 +296,13 @@ public class Client implements Serializable {
                     System.out.println("Inside sell " + command);
                     return;
                 case wish:
-                    //TODO call to marketplaceobj register
-                    System.out.println("Inside wish " + command);
+                    //TODO call to marketplaceobj registe
+
+                    Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
+                    marketplaceobj.wishItem(wish);
+
                     return;
             }
-
         }
     }
 

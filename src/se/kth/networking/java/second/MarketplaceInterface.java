@@ -1,6 +1,8 @@
 package se.kth.networking.java.second;
 
 import se.kth.networking.java.second.models.Item;
+import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.second.models.Wish;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -13,6 +15,7 @@ public interface MarketplaceInterface extends Remote {
     void registerClient(String userName, Client client) throws RemoteException;
     void unregisterClient(String userName, Client client) throws RemoteException;
     void sellItem(Item item) throws RemoteException;
+    void wishItem(Wish wish) throws RemoteException;
     void buyItem(String buyer, Item item) throws RemoteException;
-    List<Item> listItems() throws RemoteException;
+    List<StoreItem> listItems() throws RemoteException;
 }
