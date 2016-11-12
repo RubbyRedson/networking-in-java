@@ -1,6 +1,8 @@
 package se.kth.networking.java.second;
 
 import se.kth.networking.java.second.models.Item;
+import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.second.models.Wish;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -18,10 +20,12 @@ public class Marketplace implements MarketplaceInterface {
 
     HashMap<String, Client> clients;
     List<Item> store;
+    List<Wish> wishes;
 
     public Marketplace() {
         clients = new HashMap<>();
         store = new ArrayList<>();
+        wishes = new ArrayList<>();
     }
 
     private static Registry lazyCreateRegistry(Marketplace server) {
@@ -72,6 +76,7 @@ public class Marketplace implements MarketplaceInterface {
         clients.remove(userName);
 
         List<Item> toBeRemoved = new ArrayList<>();
+        List<Wish> toBeRemovedWishes = new ArrayList<>();
 
         //Remove all items that have the same client?
         //Start by collecting all items that this client is selling
@@ -88,15 +93,44 @@ public class Marketplace implements MarketplaceInterface {
             }
         }
 
+        //Then all wishes
+        for (int i = 0; i < wishes.size(); i++){
+            if(wishes.get(i).getWisher().getClientname().equalsIgnoreCase(userName)){
+                toBeRemovedWishes.add(wishes.get(i));
+            }
+        }
+
         //Remove all items
         for (int i = 0; i < toBeRemoved.size(); i++) {
             store.remove(toBeRemoved.get(i));
+        }
+
+        //Remove all wishes
+        for (int i = 0; i < toBeRemovedWishes.size(); i++){
+            wishes.remove(toBeRemovedWishes.get(i));
         }
     }
 
     @Override
     public void sellItem(Item item) {
+
         store.add(item);
+
+        //Check if someone is wishing for this
+        for(int i = 0; i < wishes.size(); i++){
+            if(wishes.get(i).getName().equalsIgnoreCase(item.getName())){
+
+                //They should only be notified if the price is also fitting
+                if(item.getPrice() <= wishes.get(i).getPrice()){
+                    wishes.get(i).getWisher().someoneIsSellingYouWish(wishes.get(i), item);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void wishItem(Wish wish) throws RemoteException {
+        wishes.add(wish);
     }
 
     @Override
@@ -117,7 +151,18 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public List<Item> listItems() {
-        return store;
+    public List<StoreItem> listItems() {
+
+        List<StoreItem> storeItems = new ArrayList<>();
+
+        for(int i = 0; i < wishes.size(); i++){
+            storeItems.add(wishes.get(i));
+        }
+
+        for(int i = 0; i < store.size(); i++){
+            storeItems.add(store.get(i));
+        }
+
+        return storeItems;
     }
 }

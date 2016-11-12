@@ -4,6 +4,8 @@ import se.kth.id2212.ex2.bankrmi.Account;
 import se.kth.id2212.ex2.bankrmi.Bank;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
 import se.kth.networking.java.second.models.Item;
+import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.second.models.Wish;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.List;
 import java.util.StringTokenizer;
+
 
 public class Client implements Serializable {
     private static final transient String USAGE = "java bankrmi.Client <bank_url>";
@@ -115,6 +118,10 @@ public class Client implements Serializable {
             System.out.println("Not enough funds!");
             return false;
         }
+    }
+
+    public void someoneIsSellingYouWish(Wish wish, Item item){
+        System.out.println("Someone is selling you wish: " + item.print());
     }
 
     public void run() {
@@ -294,9 +301,9 @@ public class Client implements Serializable {
                 //these would require the client to be registered
                 case inspect:
                     System.out.println("I have " + marketplaceobj.listItems().size() + " items in the store");
-                    List<Item> store = marketplaceobj.listItems();
-                    for (Item aStore : store) {
-                        System.out.println(aStore.toString());
+                    List<StoreItem> store = marketplaceobj.listItems();
+                    for (StoreItem aStore : store) {
+                        System.out.println(aStore.print());
                     }
                     return;
                 case buy:
@@ -312,11 +319,14 @@ public class Client implements Serializable {
                     marketplaceobj.sellItem(item);
                     return;
                 case wish:
+                    Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
+                    marketplaceobj.wishItem(wish);
+
                     //TODO call to marketplaceobj wish
                     System.out.println("Inside wish " + command);
+
                     return;
             }
-
         }
     }
 

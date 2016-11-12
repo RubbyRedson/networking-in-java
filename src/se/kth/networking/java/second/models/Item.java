@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by victoraxelsson on 2016-11-11.
  */
-public class Item implements Serializable {
+public class Item implements Serializable, StoreItem {
     private String name;
     private float price;
     private String currency;
@@ -51,7 +51,7 @@ public class Item implements Serializable {
     }
 
     @Override
-    public String toString() {
+    public String print() {
         String msg = "";
         msg += name + ", " + price + " " + currency + ", seller:" + seller.getClientname();
 

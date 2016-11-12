@@ -1,6 +1,8 @@
 package se.kth.networking.java.second;
 
 import se.kth.networking.java.second.models.Item;
+import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.second.models.Wish;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
