@@ -178,7 +178,8 @@ public class Client implements Serializable {
     }
 
     void execute(Command command) throws RemoteException, RejectedException {
-        if (command == null) {
+        if (!isCommandValid(command)) {
+            System.out.println("Incorrect command");
             return;
         }
 
@@ -256,41 +257,34 @@ public class Client implements Serializable {
         else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
                 case register:
-                    //TODO call to marketplaceobj register
                     System.out.println("Inside register " + command);
                     marketplaceobj.registerClient(command.getUserName(), this);
                     return;
                 case unregister:
-                    //TODO call to marketplaceobj register
                     System.out.println("Inside unregister " + command);
                     marketplaceobj.unregisterClient(command.getUserName(), this);
                     return;
 
                 //these would require the client to be registered
                 case inspect:
-                    //TODO call to marketplaceobj register
-
                     System.out.println("I have " + marketplaceobj.listItems().size() + " items in the store");
                     List<Item> store = marketplaceobj.listItems();
-                    for (int i = 0; i < store.size(); i++){
-                        System.out.println(store.get(i).toString());
+                    for (Item aStore : store) {
+                        System.out.println(aStore.toString());
                     }
-
                     return;
                 case buy:
-                    //TODO call to marketplaceobj register
+                    //TODO call to marketplaceobj buy
                     System.out.println("Inside buy " + command);
                     return;
                 case sell:
 
                     Item item = new Item(command.goodName, command.goodValue, this);
                     marketplaceobj.sellItem(item);
-
-                    //TODO call to marketplaceobj register
                     System.out.println("Inside sell " + command);
                     return;
                 case wish:
-                    //TODO call to marketplaceobj register
+                    //TODO call to marketplaceobj wish
                     System.out.println("Inside wish " + command);
                     return;
             }
@@ -299,13 +293,13 @@ public class Client implements Serializable {
     }
 
     private class Command {
-        private String userName;
-        private float amount;
+        private String userName = null;
+        private float amount = Float.MIN_VALUE;
         private CommandName commandName;
 
         //Marketplace
-        private String goodName;
-        private float goodValue;
+        private String goodName = null;
+        private float goodValue = Float.MIN_VALUE;
 
         private String getUserName() {
             return userName;
@@ -386,6 +380,47 @@ public class Client implements Serializable {
         } else {
             new Client().run();
         }
+    }
+
+    private static boolean isCommandValid(Command command) {
+        if (command == null) return false;
+        if (CommandName.isBankingCommand(command.getCommandName())) {
+            if (command.getGoodName() != null || !command.getGoodName().isEmpty()) return false;
+            if (command.getGoodValue() != Float.MIN_VALUE) return false;
+            switch (command.getCommandName()) {
+                case newAccount:
+                case deleteAccount:
+                case getAccount:
+                case balance:
+                    if (command.getAmount() != Float.MIN_VALUE) return false;
+                    return true;
+                case deposit:
+                case withdraw:
+                    if (command.getAmount() < 0) return false;
+            }
+        }
+        else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
+            if (command.getAmount() != Float.MIN_VALUE) return false;
+            switch (command.getCommandName()) {
+                case register:
+                case unregister:
+                case inspect:
+                    if (command.getGoodName() != null || !command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
+                    return true;
+                case buy:
+                case wish: //TODO Check syntax
+                    if (command.getGoodName() == null || command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
+                    else return true;
+                case sell:
+                    if (command.getGoodName() == null || command.getGoodName().isEmpty()) return false;
+                    if (command.getGoodValue() == Float.MIN_VALUE || command.getGoodValue() <= 0) return false;
+                    else return true;
+            }
+
+        }
+        return false;
     }
 
 }
