@@ -1,15 +1,23 @@
 package se.kth.networking.java.second.models;
 
+import se.kth.networking.java.second.Client;
+
+import java.io.Serializable;
+
 /**
  * Created by victoraxelsson on 2016-11-11.
  */
-public class Item {
-    String name;
-    float price;
-    String currency;
+public class Item implements Serializable {
+    private String name;
+    private float price;
+    private String currency;
+    private  Client seller;
+    private  Client buyer;
 
-    public Item(String name, float price){
+    public Item(String name, float price, Client seller){
         this(name, price, "SEK");
+
+        this.seller = seller;
     }
 
     public Item(String name, float price, String currency){
@@ -28,5 +36,31 @@ public class Item {
 
     public String getCurrency() {
         return currency;
+    }
+
+    public Client getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(Client buyer) {
+        this.buyer = buyer;
+    }
+
+    public Client getSeller() {
+        return seller;
+    }
+
+    @Override
+    public String toString() {
+        String msg = "";
+        msg += name + ", " + price + " " + currency + ", seller:" + seller.getClientname();
+
+        if(buyer != null){
+            msg += ", Buyer:" + buyer.getClientname();
+        }else{
+            msg += ", Buyer: currently up for grabs";
+        }
+
+        return msg;
     }
 }

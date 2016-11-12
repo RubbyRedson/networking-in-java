@@ -3,6 +3,7 @@ package se.kth.networking.java.second;
 import se.kth.id2212.ex2.bankrmi.Account;
 import se.kth.id2212.ex2.bankrmi.Bank;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
+import se.kth.networking.java.second.models.Item;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Client implements Serializable {
@@ -68,6 +70,8 @@ public class Client implements Serializable {
             bankobj = (Bank) Naming.lookup(bankname);
             marketplaceobj = (MarketplaceInterface) Naming.lookup("marketplace"); //TODO constant
         } catch (Exception e) {
+
+
             System.out.println("The runtime failed: " + e.getMessage());
             System.exit(0);
         }
@@ -76,6 +80,15 @@ public class Client implements Serializable {
 
     public Client() {
         this(DEFAULT_BANK_NAME);
+    }
+
+    public String getClientname() {
+        return clientname;
+    }
+
+    public void youHaveABuyer(Item item){
+        System.out.println("Now what?");
+        System.out.println(item);
     }
 
     public void run() {
@@ -256,13 +269,23 @@ public class Client implements Serializable {
                 //these would require the client to be registered
                 case inspect:
                     //TODO call to marketplaceobj register
-                    System.out.println("Inside inspect " + command);
+
+                    System.out.println("I have " + marketplaceobj.listItems().size() + " items in the store");
+                    List<Item> store = marketplaceobj.listItems();
+                    for (int i = 0; i < store.size(); i++){
+                        System.out.println(store.get(i).toString());
+                    }
+
                     return;
                 case buy:
                     //TODO call to marketplaceobj register
                     System.out.println("Inside buy " + command);
                     return;
                 case sell:
+
+                    Item item = new Item(command.goodName, command.goodValue, this);
+                    marketplaceobj.sellItem(item);
+
                     //TODO call to marketplaceobj register
                     System.out.println("Inside sell " + command);
                     return;
@@ -364,4 +387,5 @@ public class Client implements Serializable {
             new Client().run();
         }
     }
+
 }

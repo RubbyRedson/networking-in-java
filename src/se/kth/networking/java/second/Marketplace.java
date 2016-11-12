@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,6 +16,13 @@ import java.util.List;
  */
 public class Marketplace implements MarketplaceInterface {
 
+    HashMap<String, Client> clients;
+    List<Item> store;
+
+    public Marketplace(){
+        clients = new HashMap<>();
+        store = new ArrayList<>();
+    }
 
     private static Registry lazyCreateRegistry(Marketplace server){
         Registry registry = null;
@@ -50,6 +59,8 @@ public class Marketplace implements MarketplaceInterface {
 
     @Override
     public void registerClient(String userName, Client client) {
+        clients.put(userName, client);
+
         System.out.println("register in marketplace " + userName);
     }
 
@@ -57,20 +68,53 @@ public class Marketplace implements MarketplaceInterface {
     public void unregisterClient(String userName, Client client) {
         System.out.println("unregister in marketplace " + userName);
 
+        //Remove client from all registered clients
+        clients.remove(userName);
+
+        List<Item> toBeRemoved = new ArrayList<>();
+
+        //Remove all items that have the same client?
+        //Start by collecting all items that this client is selling
+        for (int i = 0; i < store.size(); i++){
+            if(store.get(i).getSeller().getClientname().equalsIgnoreCase(userName)){
+                toBeRemoved.add(store.get(i));
+            }
+        }
+
+        //Then collect all this client is buying
+        for (int i = 0; i < store.size(); i++){
+            if(store.get(i).getBuyer() != null &&  store.get(i).getBuyer().getClientname().equalsIgnoreCase(userName)){
+                toBeRemoved.add(store.get(i));
+            }
+        }
+
+        //Remove all items
+        for (int i = 0; i < toBeRemoved.size(); i++){
+            store.remove(toBeRemoved.get(i));
+        }
     }
 
     @Override
     public void sellItem(Item item) {
-
+        store.add(item);
     }
 
     @Override
-    public void buyItem(Item item) {
+    public void buyItem(String buyer, Item item) {
 
+        for (int i = 0; i < store.size(); i++){
+            if(store.get(i).getName().equalsIgnoreCase(item.getName())){
+                item = store.get(i);
+                item.setBuyer(clients.get(buyer));
+                store.set(i, item);
+            }
+        }
+
+        item.getSeller().youHaveABuyer(item);
     }
 
     @Override
     public List<Item> listItems() {
-        return null;
+        return store;
     }
 }
