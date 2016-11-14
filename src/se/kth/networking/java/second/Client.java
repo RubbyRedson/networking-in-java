@@ -11,7 +11,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.List;
@@ -24,6 +27,7 @@ public class Client implements Serializable {
     transient Account account;
     Bank bankobj;
     transient MarketplaceInterface marketplaceobj;
+    transient boolean runSaleChecker = false;
     private String bankname;
     String clientname;
 
@@ -89,35 +93,22 @@ public class Client implements Serializable {
         return clientname;
     }
 
-    public void youHaveABuyer(Item item){
-        try {
-            bankobj.getAccount(clientname).deposit(item.getPrice());
-            System.out.println(item.toString() + " was bought");
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (RejectedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean tryBuy(Item item) {
+    public boolean buyCallback(Item item) {
         if (item == null) return false;
         try {
             if (bankobj.getAccount(clientname).getBalance() >= item.getPrice()) {
                 bankobj.getAccount(clientname).withdraw(item.getPrice());
-                System.out.println("You bought " + item);
                 return true;
             } else {
-                System.out.println("Not enough funds!");
                 return false;
             }
         } catch (RemoteException e) {
             e.printStackTrace();
             return false;
         } catch (RejectedException e) {
-            System.out.println("Not enough funds!");
             return false;
         }
+
     }
 
     public void someoneIsSellingYouWish(Wish wish, Item item){
@@ -136,8 +127,34 @@ public class Client implements Serializable {
                 System.out.println(re);
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (NotBoundException e) {
+                e.printStackTrace();
             }
         }
+    }
+
+    private void runSaleChecker(String clientName) {
+        new Thread() {
+            public void run() {
+                while (runSaleChecker) {
+                    try {
+                        List<String> notifications =  marketplaceobj.checkSaleNotification(clientname);
+                        if (notifications.size() > 0) {
+                            System.out.println("\n");
+                            notifications.forEach(System.out::println);
+                            System.out.print(clientname + "@" + bankname + ">");
+                        }
+                    } catch (RemoteException e) {
+                        runSaleChecker = false;
+                    }
+                    try {
+                        sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 
     private Command parse(String userInput) {
@@ -210,7 +227,7 @@ public class Client implements Serializable {
         return result;
     }
 
-    void execute(Command command) throws RemoteException, RejectedException {
+    void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
         if (!isCommandValid(command)) {
             System.out.println("Incorrect command");
             return;
@@ -295,6 +312,7 @@ public class Client implements Serializable {
                     return;
                 case unregister:
                     System.out.println("Inside unregister " + command);
+                    this.runSaleChecker = false;
                     marketplaceobj.unregisterClient(command.getUserName(), this);
                     return;
 
@@ -307,22 +325,25 @@ public class Client implements Serializable {
                     }
                     return;
                 case buy:
-                    if (marketplaceobj.buyItem(getClientname(), new Item(command.getGoodName(), Float.MIN_VALUE, this))) {
-                        System.out.println("You bought a " + command.getGoodName());
-                    } else {
-                        System.out.println("You were not able to buy a " + command.getGoodName());
+                    try {
+                        if (marketplaceobj.buyItem(getClientname(), new Item(command.getGoodName(), Float.MIN_VALUE, this))) {
+                            System.out.println("You bought a " + command.getGoodName());
+                        } else {
+                            System.out.println("You were not able to buy a " + command.getGoodName());
+                        }
+                    } catch (RemoteException e) {
+                        System.out.println("You were not able to buy a " + command.getGoodName() + "\n" + e.getMessage());
                     }
                     return;
                 case sell:
-
+                    this.runSaleChecker = true;
+                    runSaleChecker(command.getUserName());
                     Item item = new Item(command.goodName, command.goodValue, this);
-                    marketplaceobj.sellItem(item);
+                    marketplaceobj.sellItem(command.getUserName(), item);
                     return;
                 case wish:
                     Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
                     marketplaceobj.wishItem(wish);
-
-                    //TODO call to marketplaceobj wish
                     System.out.println("Inside wish " + command);
 
                     return;
@@ -424,11 +445,6 @@ public class Client implements Serializable {
         if (command == null) return false;
         System.out.println(command);
         if (CommandName.isBankingCommand(command.getCommandName())) {
-//            System.out.println(1);
-//            if (command.getGoodName() != null) return false;
-//            System.out.println(2);
-//            if (command.getGoodValue() != Float.MIN_VALUE) return false;
-//            System.out.println(3);
             switch (command.getCommandName()) {
                 case newAccount:
                 case deleteAccount:
@@ -465,4 +481,10 @@ public class Client implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Client{" +
+                "clientname='" + clientname + '\'' +
+                '}';
+    }
 }

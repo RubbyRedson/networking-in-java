@@ -1,10 +1,14 @@
 package se.kth.networking.java.second;
 
+import com.sun.org.apache.regexp.internal.RE;
 import se.kth.networking.java.second.models.Item;
 import se.kth.networking.java.second.models.StoreItem;
 import se.kth.networking.java.second.models.Wish;
 
+import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -12,6 +16,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by victoraxelsson on 2016-11-11.
@@ -21,11 +26,13 @@ public class Marketplace implements MarketplaceInterface {
     HashMap<String, Client> clients;
     List<Item> store;
     List<Wish> wishes;
+    Map<String, List<String>> notifications;
 
     public Marketplace() {
         clients = new HashMap<>();
         store = new ArrayList<>();
         wishes = new ArrayList<>();
+        notifications = new HashMap<>();
     }
 
     private static Registry lazyCreateRegistry(Marketplace server) {
@@ -62,9 +69,9 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void registerClient(String userName, Client client) {
+    public void registerClient(String userName, Client client) throws RemoteException, NotBoundException, MalformedURLException {
         clients.put(userName, client);
-
+        notifications.put(userName, new ArrayList<>());
         System.out.println("register in marketplace " + userName);
     }
 
@@ -74,6 +81,7 @@ public class Marketplace implements MarketplaceInterface {
 
         //Remove client from all registered clients
         clients.remove(userName);
+        notifications.remove(userName);
 
         List<Item> toBeRemoved = new ArrayList<>();
         List<Wish> toBeRemovedWishes = new ArrayList<>();
@@ -112,8 +120,10 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void sellItem(Item item) {
-
+    public void sellItem(String username, Item item) throws RemoteException {
+        if (!clients.containsKey(username))
+            throw new RemoteException("No such client registered!\n" + username);
+        item.setSeller(clients.get(username));
         store.add(item);
 
         //Check if someone is wishing for this
@@ -134,20 +144,40 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public boolean buyItem(String buyer, Item item) {
+    public List<String> checkSaleNotification(String clientname) throws RemoteException {
+        if (!clients.containsKey(clientname))
+            throw new RemoteException("No such client registered!\n" + clientname);
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < notifications.get(clientname).size(); i++) {
+            result.add(notifications.get(clientname).get(i));
+        }
+        notifications.put(clientname, new ArrayList<>());
+        return result;
+    }
+
+    @Override
+    public boolean buyItem(String buyer, Item item) throws RemoteException {
+        if (!clients.containsKey(buyer))
+            throw new RemoteException("No such client registered!\n" + buyer);
         Client buyerClient = clients.get(buyer);
         for (int i = 0; i < store.size(); i++) {
-            if (store.get(i).getName().equalsIgnoreCase(item.getName()) && item.getBuyer() == null) {
+            if (store.get(i).getName().equalsIgnoreCase(item.getName())) {
                 item = store.get(i);
-                if (buyerClient != null && buyerClient.tryBuy(item)) {
-                    item.setBuyer(buyerClient);
-                    store.set(i, item);
-                    item.getSeller().youHaveABuyer(item);
-                    return true;
+                if (item.getBuyer() == null) {
+                    System.out.println(item);
+                    if (buyerClient != null && buyerClient.buyCallback(item)) {
+                        item.setBuyer(buyerClient);
+                        store.set(i, item);
+                        notifications.get(item.getSeller().getClientname()).add(item.getName() +
+                                " was bought, you earned " + item.getPrice());
+                        return true;
+                    } else {
+                        throw new RemoteException("Insufficient funds");
+                    }
                 }
             }
         }
-        return false;
+        throw new RemoteException("No such item is being sold!");
     }
 
     @Override

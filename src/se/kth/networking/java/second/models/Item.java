@@ -11,8 +11,8 @@ public class Item implements Serializable, StoreItem {
     private String name;
     private float price;
     private String currency;
-    private  Client seller;
-    private  Client buyer;
+    private Client seller;
+    private Client buyer;
 
     public Item(String name, float price, Client seller){
         this(name, price, "SEK");
@@ -62,5 +62,20 @@ public class Item implements Serializable, StoreItem {
         }
 
         return msg;
+    }
+
+    public void setSeller(Client seller) {
+        this.seller = seller;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", currency='" + currency + '\'' +
+                ", seller=" + seller +
+                ", buyer=" + buyer +
+                '}';
     }
 }
