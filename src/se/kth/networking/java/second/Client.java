@@ -63,8 +63,6 @@ public class Client implements Serializable {
         }
     }
 
-    ;
-
     public Client(String bankName) {
         this.bankname = bankName;
         try {
@@ -228,6 +226,8 @@ public class Client implements Serializable {
             return;
         }
 
+
+
         switch (command.getCommandName()) {
             case list:
                 try {
@@ -333,11 +333,11 @@ public class Client implements Serializable {
                     }
                     return;
                 case sell:
-                    Item item = new Item(command.goodName, command.goodValue, this);
+                    Item item = new Item(command.getGoodName(), command.getGoodValue(), this);
                     marketplaceobj.sellItem(command.getUserName(), item);
                     return;
                 case wish:
-                    Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
+                    Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this);
                     marketplaceobj.wishItem(wish);
 
                     return;
@@ -345,80 +345,6 @@ public class Client implements Serializable {
         }
     }
 
-    private class Command {
-        private String userName = null;
-        private float amount = Float.MIN_VALUE;
-        private CommandName commandName;
-
-        //Marketplace
-        private String goodName = null;
-        private float goodValue = Float.MIN_VALUE;
-
-        private String getUserName() {
-            return userName;
-        }
-
-        private float getAmount() {
-            return amount;
-        }
-
-        private CommandName getCommandName() {
-            return commandName;
-        }
-
-        private Command() {
-        }
-
-        private Command(Client.CommandName commandName, String userName) {
-            this.commandName = commandName;
-            this.userName = userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        public void setCommandName(CommandName commandName) {
-            this.commandName = commandName;
-        }
-
-        public void setAmount(float amount) {
-            if (CommandName.isBankingCommand(this.getCommandName()))
-                this.amount = amount;
-        }
-
-        public float getGoodValue() {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                return goodValue;
-            else return -1;
-        }
-
-        public void setGoodValue(float goodValue) {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                this.goodValue = goodValue;
-        }
-
-        public String getGoodName() {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                return goodName;
-            else return "";
-        }
-
-        public void setGoodName(String goodName) {
-            this.goodName = goodName;
-        }
-
-        @Override
-        public String toString() {
-            return "Command{" +
-                    "userName='" + userName + '\'' +
-                    ", amount=" + amount +
-                    ", commandName=" + commandName +
-                    ", goodName='" + goodName + '\'' +
-                    ", goodValue=" + goodValue +
-                    '}';
-        }
-    }
 
     public static void main(String[] args) {
         if ((args.length > 1) || (args.length > 0 && args[0].equals("-h"))) {
