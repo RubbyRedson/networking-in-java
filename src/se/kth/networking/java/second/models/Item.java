@@ -1,8 +1,10 @@
 package se.kth.networking.java.second.models;
 
 import se.kth.networking.java.second.Client;
+import se.kth.networking.java.second.ClientInterface;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 
 /**
  * Created by victoraxelsson on 2016-11-11.
@@ -11,8 +13,8 @@ public class Item implements Serializable, StoreItem {
     private String name;
     private float price;
     private String currency;
-    private Client seller;
-    private Client buyer;
+    private ClientInterface seller;
+    private ClientInterface buyer;
 
     public Item(String name, float price, Client seller){
         this(name, price, "SEK");
@@ -38,20 +40,20 @@ public class Item implements Serializable, StoreItem {
         return currency;
     }
 
-    public Client getBuyer() {
+    public ClientInterface getBuyer() {
         return buyer;
     }
 
-    public void setBuyer(Client buyer) {
+    public void setBuyer(ClientInterface buyer) {
         this.buyer = buyer;
     }
 
-    public Client getSeller() {
+    public ClientInterface getSeller() {
         return seller;
     }
 
     @Override
-    public String print() {
+    public String print() throws RemoteException {
         String msg = "";
         msg += name + ", " + price + " " + currency + ", seller:" + seller.getClientname();
 
@@ -64,7 +66,7 @@ public class Item implements Serializable, StoreItem {
         return msg;
     }
 
-    public void setSeller(Client seller) {
+    public void setSeller(ClientInterface seller) {
         this.seller = seller;
     }
 

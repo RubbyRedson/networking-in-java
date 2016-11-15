@@ -14,23 +14,20 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by victoraxelsson on 2016-11-11.
  */
 public class Marketplace implements MarketplaceInterface {
 
-    private HashMap<String, Client> clients;
+    private HashMap<String, ClientInterface> clients;
     private List<Item> store;
     private List<Wish> wishes;
-    private Map<String, List<String>> notifications;
 
     private Marketplace() {
         clients = new HashMap<>();
         store = new ArrayList<>();
         wishes = new ArrayList<>();
-        notifications = new HashMap<>();
     }
 
     private static Registry lazyCreateRegistry(Marketplace server) {
@@ -62,24 +59,20 @@ public class Marketplace implements MarketplaceInterface {
     public static void main(String[] args) {
         Marketplace server = new Marketplace();
         Registry registry = lazyCreateRegistry(server);
-        System.out.println("Grvy");
-
     }
 
     @Override
-    public void registerClient(String userName, Client client) throws RemoteException, NotBoundException, MalformedURLException {
+    public synchronized void registerClient(String userName, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
         clients.put(userName, client);
-        notifications.put(userName, new ArrayList<>());
         System.out.println("register in marketplace " + userName);
     }
 
     @Override
-    public void unregisterClient(String userName, Client client) {
+    public synchronized void unregisterClient(String userName, ClientInterface client) throws RemoteException {
         System.out.println("unregister in marketplace " + userName);
 
         //Remove client from all registered clients
         clients.remove(userName);
-        notifications.remove(userName);
 
         List<Item> toBeRemoved = new ArrayList<>();
         List<Wish> toBeRemovedWishes = new ArrayList<>();
@@ -100,8 +93,8 @@ public class Marketplace implements MarketplaceInterface {
         }
 
         //Then all wishes
-        for (int i = 0; i < wishes.size(); i++){
-            if(wishes.get(i).getWisher().getClientname().equalsIgnoreCase(userName)){
+        for (int i = 0; i < wishes.size(); i++) {
+            if (wishes.get(i).getWisher().getClientname().equalsIgnoreCase(userName)) {
                 toBeRemovedWishes.add(wishes.get(i));
             }
         }
@@ -112,27 +105,27 @@ public class Marketplace implements MarketplaceInterface {
         }
 
         //Remove all wishes
-        for (int i = 0; i < toBeRemovedWishes.size(); i++){
+        for (int i = 0; i < toBeRemovedWishes.size(); i++) {
             wishes.remove(toBeRemovedWishes.get(i));
         }
     }
 
     @Override
-    public void sellItem(String username, Item item) throws RemoteException {
+    public synchronized void sellItem(String username, Item item) throws RemoteException {
         if (!clients.containsKey(username))
             throw new RemoteException("No such client registered!\n" + username);
         item.setSeller(clients.get(username));
         store.add(item);
+        System.out.println("Item for sale added: " + item.print());
 
         //Check if someone is wishing for this
-        System.out.println("Wishes: " + wishes.toString());
-        for(int i = 0; i < wishes.size(); i++){
-            if(wishes.get(i).getName().equalsIgnoreCase(item.getName())){
+        for (int i = 0; i < wishes.size(); i++) {
+            if (wishes.get(i).getName().equalsIgnoreCase(item.getName())) {
 
                 //They should only be notified if the price is also fitting
-                if(item.getPrice() <= wishes.get(i).getPrice()){
-                    notifications.get(wishes.get(i).getWisher().getClientname()).add("An object that is in your " +
-                            "wishlist is being sold!\n" + item.toString());
+                if (item.getPrice() <= wishes.get(i).getPrice()) {
+                    wishes.get(i).getWisher().print("An object that is in your " +
+                            "wishlist is being sold A " + item.getName() + " for " + item.getPrice());
                 }
             }
         }
@@ -140,55 +133,49 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void wishItem(Wish wish) throws RemoteException {
+    public synchronized void wishItem(Wish wish) throws RemoteException {
         wishes.add(wish);
+        System.out.println("Wish added: " + wish.print());
         for (Item item : store) {
-            if(item.getPrice() <= wish.getPrice()){
-                notifications.get(wish.getWisher().getClientname()).add("An object that is in your " +
-                        "wishlist is being sold!\n" + item.toString());
+            if (item.getPrice() <= wish.getPrice()) {
+                wish.getWisher().print("An object that is in your " +
+                        "wishlist is being sold! A " + item.getName() + " for " + item.getPrice());
             }
         }
     }
 
     @Override
-    public List<String> checkNotifications(String clientname) throws RemoteException {
-        if (!clients.containsKey(clientname))
-            throw new RemoteException("No such client registered!\n" + clientname);
-        List<String> result = new ArrayList<>();
-        for (int i = 0; i < notifications.get(clientname).size(); i++) {
-            result.add(notifications.get(clientname).get(i));
-        }
-        notifications.put(clientname, new ArrayList<>());
-        return result;
-    }
-
-    @Override
-    public boolean buyItem(String buyer, Item item) throws RemoteException {
+    public synchronized boolean buyItem(String buyer, Item item) throws RemoteException {
         if (!clients.containsKey(buyer))
             throw new RemoteException("No such client registered!\n" + buyer);
-        Client buyerClient = clients.get(buyer);
+        ClientInterface buyerClient = clients.get(buyer);
         for (int i = 0; i < store.size(); i++) {
             if (store.get(i).getName().equalsIgnoreCase(item.getName())) {
                 item = store.get(i);
                 if (item.getBuyer() == null) {
-                    System.out.println(item);
                     if (buyerClient != null && buyerClient.buyCallback(item)) {
                         item.setBuyer(buyerClient);
                         store.set(i, item);
-                        notifications.get(item.getSeller().getClientname()).add(item.getName() +
+                        item.getSeller().sellCallback(item);
+                        item.getSeller().print(item.getName() +
                                 " was bought, you earned " + item.getPrice());
+                        item.getBuyer().print("You bought a " + item.getName() +
+                                " for " + item.getPrice());
                         removeFulfilledWishes(buyerClient.getClientname(), item);
+                        System.out.println("Item was bought: " + item.print());
                         return true;
                     } else {
-                        throw new RemoteException("Insufficient funds");
+                        buyerClient.print("Insufficient funds");
+                        return false;
                     }
                 }
             }
         }
-        throw new RemoteException("No such item is being sold!");
+        buyerClient.print("No such item found for sale!");
+        return false;
     }
 
-    private void removeFulfilledWishes(String client, Item purchase) {
+    private void removeFulfilledWishes(String client, Item purchase) throws RemoteException {
         List<Wish> newWishes = new ArrayList<>();
         for (Wish wish : wishes) {
             if (!wish.getWisher().getClientname().equals(client) || !wish.getName().equalsIgnoreCase(purchase.getName())) {
@@ -199,15 +186,15 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public List<StoreItem> listItems() {
+    public synchronized List<StoreItem> listItems() {
 
         List<StoreItem> storeItems = new ArrayList<>();
 
-        for(int i = 0; i < wishes.size(); i++){
+        for (int i = 0; i < wishes.size(); i++) {
             storeItems.add(wishes.get(i));
         }
 
-        for(int i = 0; i < store.size(); i++){
+        for (int i = 0; i < store.size(); i++) {
             storeItems.add(store.get(i));
         }
 
