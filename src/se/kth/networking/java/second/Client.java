@@ -30,7 +30,7 @@ public class Client implements Serializable {
     private String bankname;
     private String clientname;
 
-    private enum CommandName {
+    enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
         buy, sell, wish, register, unregister, inspect,                             //Marketplace commands
         quit, help;                                                                 //Utility commands
@@ -330,90 +330,15 @@ public class Client implements Serializable {
                     }
                     return;
                 case sell:
-                    Item item = new Item(command.goodName, command.goodValue, this);
+                    Item item = new Item(command.getGoodName(), command.getGoodValue(), this);
                     marketplaceobj.sellItem(command.getUserName(), item);
                     return;
                 case wish:
-                    Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
+                    Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this);
                     marketplaceobj.wishItem(wish);
 
                     return;
             }
-        }
-    }
-
-    private class Command {
-        private String userName = null;
-        private float amount = Float.MIN_VALUE;
-        private CommandName commandName;
-
-        //Marketplace
-        private String goodName = null;
-        private float goodValue = Float.MIN_VALUE;
-
-        private String getUserName() {
-            return userName;
-        }
-
-        private float getAmount() {
-            return amount;
-        }
-
-        private CommandName getCommandName() {
-            return commandName;
-        }
-
-        private Command() {
-        }
-
-        private Command(Client.CommandName commandName, String userName) {
-            this.commandName = commandName;
-            this.userName = userName;
-        }
-
-        void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        void setCommandName(CommandName commandName) {
-            this.commandName = commandName;
-        }
-
-        void setAmount(float amount) {
-            if (CommandName.isBankingCommand(this.getCommandName()))
-                this.amount = amount;
-        }
-
-        float getGoodValue() {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                return goodValue;
-            else return -1;
-        }
-
-        void setGoodValue(float goodValue) {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                this.goodValue = goodValue;
-        }
-
-        String getGoodName() {
-            if (CommandName.isMarketplaceCommand(this.getCommandName()))
-                return goodName;
-            else return "";
-        }
-
-        void setGoodName(String goodName) {
-            this.goodName = goodName;
-        }
-
-        @Override
-        public String toString() {
-            return "Command{" +
-                    "userName='" + userName + '\'' +
-                    ", amount=" + amount +
-                    ", commandName=" + commandName +
-                    ", goodName='" + goodName + '\'' +
-                    ", goodValue=" + goodValue +
-                    '}';
         }
     }
 
