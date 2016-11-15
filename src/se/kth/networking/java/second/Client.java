@@ -23,14 +23,14 @@ import java.util.StringTokenizer;
 public class Client implements Serializable {
     private static final transient String USAGE = "java bankrmi.Client <bank_url>";
     private static final transient String DEFAULT_BANK_NAME = "Nordea";
-    transient Account account;
-    Bank bankobj;
-    transient MarketplaceInterface marketplaceobj;
+    private transient Account account;
+    private Bank bankobj;
+    private transient MarketplaceInterface marketplaceobj;
     transient boolean runNotificationChecker = false;
     private String bankname;
-    String clientname;
+    private String clientname;
 
-    static enum CommandName {
+    private enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
         buy, sell, wish, register, unregister, inspect,                             //Marketplace commands
         quit, help;                                                                 //Utility commands
@@ -63,9 +63,7 @@ public class Client implements Serializable {
         }
     }
 
-    ;
-
-    public Client(String bankName) {
+    private Client(String bankName) {
         this.bankname = bankName;
         try {
             try {
@@ -84,7 +82,7 @@ public class Client implements Serializable {
         System.out.println("Connected to bank: " + bankname);
     }
 
-    public Client() {
+    private Client() {
         this(DEFAULT_BANK_NAME);
     }
 
@@ -92,7 +90,7 @@ public class Client implements Serializable {
         return clientname;
     }
 
-    public boolean buyCallback(Item item) {
+    boolean buyCallback(Item item) {
         if (item == null) return false;
         try {
             if (bankobj.getAccount(clientname).getBalance() >= item.getPrice()) {
@@ -110,11 +108,7 @@ public class Client implements Serializable {
 
     }
 
-    public void someoneIsSellingYouWish(Wish wish, Item item){
-        System.out.println("Someone is selling you wish: " + item.print());
-    }
-
-    public void run() {
+    private void run() {
         BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 
         while (true) {
@@ -124,9 +118,7 @@ public class Client implements Serializable {
                 execute(parse(userInput));
             } catch (RejectedException re) {
                 System.out.println(re);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NotBoundException e) {
+            } catch (IOException | NotBoundException e) {
                 e.printStackTrace();
             }
         }
@@ -167,13 +159,13 @@ public class Client implements Serializable {
         }
 
         CommandName commandName = null;
-        String userName = null;
-        float amount = 0;
+        String userName;
+        float amount;
         int userInputTokenNo = 1;
 
         //Marketplace
         String goodName;
-        float goodValue = 0;
+        float goodValue;
 
         Command result = new Command();
 
@@ -226,9 +218,10 @@ public class Client implements Serializable {
         return result;
     }
 
-    void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
-        if (!isCommandValid(command)) {
-            System.out.println("Incorrect command");
+    private void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
+        String validity = isCommandValid(command);
+        if (validity != null) {
+            System.out.println(validity);
             return;
         }
 
@@ -344,7 +337,6 @@ public class Client implements Serializable {
                     Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
                     marketplaceobj.wishItem(wish);
                     System.out.println("Inside wish " + command);
-
                     return;
             }
         }
@@ -379,37 +371,37 @@ public class Client implements Serializable {
             this.userName = userName;
         }
 
-        public void setUserName(String userName) {
+        void setUserName(String userName) {
             this.userName = userName;
         }
 
-        public void setCommandName(CommandName commandName) {
+        void setCommandName(CommandName commandName) {
             this.commandName = commandName;
         }
 
-        public void setAmount(float amount) {
+        void setAmount(float amount) {
             if (CommandName.isBankingCommand(this.getCommandName()))
                 this.amount = amount;
         }
 
-        public float getGoodValue() {
+        float getGoodValue() {
             if (CommandName.isMarketplaceCommand(this.getCommandName()))
                 return goodValue;
             else return -1;
         }
 
-        public void setGoodValue(float goodValue) {
+        void setGoodValue(float goodValue) {
             if (CommandName.isMarketplaceCommand(this.getCommandName()))
                 this.goodValue = goodValue;
         }
 
-        public String getGoodName() {
+        String getGoodName() {
             if (CommandName.isMarketplaceCommand(this.getCommandName()))
                 return goodName;
             else return "";
         }
 
-        public void setGoodName(String goodName) {
+        void setGoodName(String goodName) {
             this.goodName = goodName;
         }
 
@@ -440,8 +432,8 @@ public class Client implements Serializable {
         }
     }
 
-    private static boolean isCommandValid(Command command) {
-        if (command == null) return false;
+    private static String isCommandValid(Command command) {
+        if (command == null) return "Incorrect command, please try again";
         System.out.println(command);
         if (CommandName.isBankingCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
@@ -449,35 +441,42 @@ public class Client implements Serializable {
                 case deleteAccount:
                 case getAccount:
                 case balance:
-                    if (command.getAmount() != Float.MIN_VALUE) return false;
-                    return true;
+                    if (command.getAmount() != Float.MIN_VALUE) return "Incorrect command, please try again";
+                    return null;
                 case deposit:
                 case withdraw:
-                    if (command.getAmount() < 0 || command.getAmount() == Float.MIN_VALUE) return false;
+                    if (command.getAmount() < 0 || command.getAmount() == Float.MIN_VALUE) return "Incorrect parameters for the command '" + command.getCommandName() +"', " +
+                            "you can only use positive values for this command, please try again";
             }
         }
         else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
-            if (command.getAmount() != Float.MIN_VALUE) return false;
+            if (command.getAmount() != Float.MIN_VALUE) return "Incorrect command, please try again";
             switch (command.getCommandName()) {
                 case register:
                 case unregister:
                 case inspect:
-                    if (command.getGoodName() != null) return false;
-                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
-                    return true;
+                    if (command.getGoodName() != null) return "You should not specify parameters for the command "
+                            + command.getCommandName() +", please try again";
+                    if (command.getGoodValue() != Float.MIN_VALUE) return "You should not specify parameters for the command "
+                            + command.getCommandName() +" , " + "please try again";
+                    return null;
                 case buy:
-                    if (command.getGoodName() == null) return false;
-                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
-                    else return true;
+                    if (command.getGoodName() == null) return "There was no name of the good specified for the command "
+                            + command.getCommandName() +", please try again";
+                    if (command.getGoodValue() != Float.MIN_VALUE) return "Incorrect parameter for the command '" + command.getCommandName() +"', " +
+                            "you can only use a good name for this command, please try again";
+                    else return null;
                 case wish:
                 case sell:
-                    if (command.getGoodName() == null) return false;
-                    if (command.getGoodValue() == Float.MIN_VALUE || command.getGoodValue() <= 0) return false;
-                    else return true;
+                    if (command.getGoodName() == null) return "There was no name of the good specified for the command '"
+                            + command.getCommandName() +"', " + "please try again";
+                    if (command.getGoodValue() == Float.MIN_VALUE || command.getGoodValue() <= 0) return "There was no price of the good specified for the command '"
+                            + command.getCommandName() +"', please try again";
+                    else return null;
             }
 
         }
-        return true;
+        return null;
     }
 
     @Override

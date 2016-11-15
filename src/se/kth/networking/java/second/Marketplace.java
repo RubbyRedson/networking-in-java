@@ -1,13 +1,11 @@
 package se.kth.networking.java.second;
 
-import com.sun.org.apache.regexp.internal.RE;
 import se.kth.networking.java.second.models.Item;
 import se.kth.networking.java.second.models.StoreItem;
 import se.kth.networking.java.second.models.Wish;
 
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
-import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -23,12 +21,12 @@ import java.util.Map;
  */
 public class Marketplace implements MarketplaceInterface {
 
-    HashMap<String, Client> clients;
-    List<Item> store;
-    List<Wish> wishes;
-    Map<String, List<String>> notifications;
+    private HashMap<String, Client> clients;
+    private List<Item> store;
+    private List<Wish> wishes;
+    private Map<String, List<String>> notifications;
 
-    public Marketplace() {
+    private Marketplace() {
         clients = new HashMap<>();
         store = new ArrayList<>();
         wishes = new ArrayList<>();
@@ -134,7 +132,7 @@ public class Marketplace implements MarketplaceInterface {
                 //They should only be notified if the price is also fitting
                 if(item.getPrice() <= wishes.get(i).getPrice()){
                     notifications.get(wishes.get(i).getWisher().getClientname()).add("An object that is in your " +
-                            "wishlist is being sold!\n" + item.toString());//.someoneIsSellingYouWish(wishes.get(i), item);
+                            "wishlist is being sold!\n" + item.getName() + " for " + item.getPrice());
                 }
             }
         }
