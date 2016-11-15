@@ -432,8 +432,8 @@ public class Client implements Serializable {
         }
     }
 
-    private static boolean isCommandValid(Command command) {
-        if (command == null) return false;
+    private static String isCommandValid(Command command) {
+        if (command == null) return "Incorrect command, please try again";
         System.out.println(command);
         if (CommandName.isBankingCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
@@ -441,8 +441,8 @@ public class Client implements Serializable {
                 case deleteAccount:
                 case getAccount:
                 case balance:
-                    if (command.getAmount() != Float.MIN_VALUE) return false;
-                    return true;
+                    if (command.getAmount() != Float.MIN_VALUE) return "Incorrect command, please try again";
+                    return null;
                 case deposit:
                 case withdraw:
                     if (command.getAmount() < 0 || command.getAmount() == Float.MIN_VALUE) return "Incorrect parameters for the command '" + command.getCommandName() +"', " +
@@ -455,13 +455,17 @@ public class Client implements Serializable {
                 case register:
                 case unregister:
                 case inspect:
-                    if (command.getGoodName() != null) return false;
-                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
-                    return true;
+                    if (command.getGoodName() != null) return "You should not specify parameters for the command "
+                            + command.getCommandName() +", please try again";
+                    if (command.getGoodValue() != Float.MIN_VALUE) return "You should not specify parameters for the command "
+                            + command.getCommandName() +" , " + "please try again";
+                    return null;
                 case buy:
-                    if (command.getGoodName() == null) return false;
-                    if (command.getGoodValue() != Float.MIN_VALUE) return false;
-                    else return true;
+                    if (command.getGoodName() == null) return "There was no name of the good specified for the command "
+                            + command.getCommandName() +", please try again";
+                    if (command.getGoodValue() != Float.MIN_VALUE) return "Incorrect parameter for the command '" + command.getCommandName() +"', " +
+                            "you can only use a good name for this command, please try again";
+                    else return null;
                 case wish:
                 case sell:
                     if (command.getGoodName() == null) return "There was no name of the good specified for the command '"
