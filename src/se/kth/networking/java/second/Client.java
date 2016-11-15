@@ -110,10 +110,6 @@ public class Client implements Serializable {
 
     }
 
-    public void someoneIsSellingYouWish(Wish wish, Item item){
-        System.out.println("Someone is selling you wish: " + item.print());
-    }
-
     public void run() {
         BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 
@@ -343,7 +339,6 @@ public class Client implements Serializable {
                 case wish:
                     Wish wish = new Wish(command.goodName, command.getGoodValue(), this);
                     marketplaceobj.wishItem(wish);
-                    System.out.println("Inside wish " + command);
 
                     return;
             }

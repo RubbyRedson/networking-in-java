@@ -134,7 +134,7 @@ public class Marketplace implements MarketplaceInterface {
                 //They should only be notified if the price is also fitting
                 if(item.getPrice() <= wishes.get(i).getPrice()){
                     notifications.get(wishes.get(i).getWisher().getClientname()).add("An object that is in your " +
-                            "wishlist is being sold!\n" + item.toString());//.someoneIsSellingYouWish(wishes.get(i), item);
+                            "wishlist is being sold!\n" + item.print());//.someoneIsSellingYouWish(wishes.get(i), item);
                 }
             }
         }
