@@ -26,7 +26,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
     private transient Account account;
     private Bank bankobj;
     private transient MarketplaceInterface marketplaceobj;
-    transient boolean runNotificationChecker = false;
     private String bankname;
     private String clientname;
 
