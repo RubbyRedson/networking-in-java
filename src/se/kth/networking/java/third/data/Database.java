@@ -1,5 +1,7 @@
 package se.kth.networking.java.third.data;
 
+import se.kth.networking.java.third.model.Item;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +9,13 @@ import java.util.List;
 /**
  * Created by victoraxelsson on 2016-11-15.
  */
-public class Database {
+public class Database implements IRepository{
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://localhost:8889/networking-in-java";
     private static final String USER = "root";
     private static final String PASS = "root";
+
 
     private Connection getConnection(){
         Connection con = null;
@@ -30,6 +33,30 @@ public class Database {
         }
 
         return con;
+    }
+
+    private Statement getStatement(){
+        Statement stmt = null;
+        try {
+            Connection con = getConnection();
+            stmt = con.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return stmt;
+    }
+
+    private PreparedStatement getPreparedStatement(String sql){
+        Connection con = getConnection();
+        PreparedStatement preparedStatement = null;
+        try {
+             preparedStatement = con.prepareStatement(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return preparedStatement;
     }
 
 
@@ -64,5 +91,18 @@ public class Database {
             e.printStackTrace();
         }
         */
+    }
+
+    @Override
+    public void saveItem(Item item) {
+        Statement stmt = getStatement();
+        try {
+            PreparedStatement prepared = getPreparedStatement("insert into items (name, price, seller) VALUES (?, ?, ?)");
+            prepared.setString(1, item.getName());
+            prepared.setFloat(2, item.getPrice());
+            //prepared.setInt(3, item.getSeller().getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
