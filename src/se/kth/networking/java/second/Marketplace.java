@@ -177,6 +177,7 @@ public class Marketplace implements MarketplaceInterface {
                         store.set(i, item);
                         notifications.get(item.getSeller().getClientname()).add(item.getName() +
                                 " was bought, you earned " + item.getPrice());
+                        removeFulfilledWishes(buyerClient.getClientname(), item);
                         return true;
                     } else {
                         throw new RemoteException("Insufficient funds");
@@ -185,6 +186,16 @@ public class Marketplace implements MarketplaceInterface {
             }
         }
         throw new RemoteException("No such item is being sold!");
+    }
+
+    private void removeFulfilledWishes(String client, Item purchase) {
+        List<Wish> newWishes = new ArrayList<>();
+        for (Wish wish : wishes) {
+            if (!wish.getWisher().getClientname().equals(client) || !wish.getName().equalsIgnoreCase(purchase.getName())) {
+                newWishes.add(wish);
+            }
+        }
+        wishes = newWishes;
     }
 
     @Override
