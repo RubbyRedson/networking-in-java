@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.List;
@@ -27,7 +26,7 @@ public class Client implements Serializable {
     transient Account account;
     Bank bankobj;
     transient MarketplaceInterface marketplaceobj;
-    transient boolean runSaleChecker = false;
+    transient boolean runNotificationChecker = false;
     private String bankname;
     String clientname;
 
@@ -133,19 +132,19 @@ public class Client implements Serializable {
         }
     }
 
-    private void runSaleChecker(String clientName) {
+    private void runNotificationChecker(String clientName) {
         new Thread() {
             public void run() {
-                while (runSaleChecker) {
+                while (runNotificationChecker) {
                     try {
-                        List<String> notifications =  marketplaceobj.checkSaleNotification(clientname);
+                        List<String> notifications =  marketplaceobj.checkNotifications(clientname);
                         if (notifications.size() > 0) {
                             System.out.println("\n");
                             notifications.forEach(System.out::println);
                             System.out.print(clientname + "@" + bankname + ">");
                         }
                     } catch (RemoteException e) {
-                        runSaleChecker = false;
+                        runNotificationChecker = false;
                     }
                     try {
                         sleep(500);
@@ -309,11 +308,13 @@ public class Client implements Serializable {
                 case register:
                     System.out.println("Inside register " + command);
                     marketplaceobj.registerClient(command.getUserName(), this);
+                    this.runNotificationChecker = true;
+                    runNotificationChecker(command.getUserName());
                     return;
                 case unregister:
                     System.out.println("Inside unregister " + command);
-                    this.runSaleChecker = false;
                     marketplaceobj.unregisterClient(command.getUserName(), this);
+                    this.runNotificationChecker = false;
                     return;
 
                 //these would require the client to be registered
@@ -336,8 +337,6 @@ public class Client implements Serializable {
                     }
                     return;
                 case sell:
-                    this.runSaleChecker = true;
-                    runSaleChecker(command.getUserName());
                     Item item = new Item(command.goodName, command.goodValue, this);
                     marketplaceobj.sellItem(command.getUserName(), item);
                     return;
@@ -467,10 +466,10 @@ public class Client implements Serializable {
                     if (command.getGoodValue() != Float.MIN_VALUE) return false;
                     return true;
                 case buy:
-                case wish: //TODO Check syntax
                     if (command.getGoodName() == null) return false;
                     if (command.getGoodValue() != Float.MIN_VALUE) return false;
                     else return true;
+                case wish:
                 case sell:
                     if (command.getGoodName() == null) return false;
                     if (command.getGoodValue() == Float.MIN_VALUE || command.getGoodValue() <= 0) return false;

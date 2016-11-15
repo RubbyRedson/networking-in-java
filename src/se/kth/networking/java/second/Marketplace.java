@@ -127,12 +127,14 @@ public class Marketplace implements MarketplaceInterface {
         store.add(item);
 
         //Check if someone is wishing for this
+        System.out.println("Wishes: " + wishes.toString());
         for(int i = 0; i < wishes.size(); i++){
             if(wishes.get(i).getName().equalsIgnoreCase(item.getName())){
 
                 //They should only be notified if the price is also fitting
                 if(item.getPrice() <= wishes.get(i).getPrice()){
-                    wishes.get(i).getWisher().someoneIsSellingYouWish(wishes.get(i), item);
+                    notifications.get(wishes.get(i).getWisher().getClientname()).add("An object that is in your " +
+                            "wishlist is being sold!\n" + item.toString());//.someoneIsSellingYouWish(wishes.get(i), item);
                 }
             }
         }
@@ -144,7 +146,7 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public List<String> checkSaleNotification(String clientname) throws RemoteException {
+    public List<String> checkNotifications(String clientname) throws RemoteException {
         if (!clients.containsKey(clientname))
             throw new RemoteException("No such client registered!\n" + clientname);
         List<String> result = new ArrayList<>();
