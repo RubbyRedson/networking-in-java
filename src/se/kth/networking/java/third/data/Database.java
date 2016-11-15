@@ -14,7 +14,28 @@ public class Database {
     private static final String USER = "root";
     private static final String PASS = "root";
 
+    private Connection getConnection(){
+        Connection con = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con = DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return con;
+    }
+
+
+
     public Database(){
+        /*
         Connection con = null;
         Statement stmt = null;
 
@@ -42,6 +63,6 @@ public class Database {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
+        */
     }
 }
