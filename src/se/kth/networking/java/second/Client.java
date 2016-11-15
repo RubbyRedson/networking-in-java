@@ -21,11 +21,11 @@ import java.util.StringTokenizer;
 
 
 public class Client extends UnicastRemoteObject implements ClientInterface {
-    private static final transient String USAGE = "java bankrmi.Client <bank_url>";
-    private static final transient String DEFAULT_BANK_NAME = "Nordea";
-    private transient Account account;
+    private static final String USAGE = "java bankrmi.Client <bank_url>";
+    private static final String DEFAULT_BANK_NAME = "Nordea";
+    private Account account;
     private Bank bankobj;
-    private transient MarketplaceInterface marketplaceobj;
+    private MarketplaceInterface marketplaceobj;
     private String bankname;
     private String clientname;
 
