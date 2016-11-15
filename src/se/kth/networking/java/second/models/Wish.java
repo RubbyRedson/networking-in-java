@@ -1,8 +1,10 @@
 package se.kth.networking.java.second.models;
 
 import se.kth.networking.java.second.Client;
+import se.kth.networking.java.second.ClientInterface;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 
 /**
  * Created by victoraxelsson on 2016-11-12.
@@ -12,13 +14,13 @@ public class Wish implements Serializable, StoreItem{
     private String name;
     private float price;
     private String currency;
-    private Client wisher;
+    private ClientInterface wisher;
 
-    public Wish(String name, float price, Client wisher){
+    public Wish(String name, float price, ClientInterface wisher){
         this(name, price, wisher, "SEK");
     }
 
-    public Wish(String name, float price, Client wisher, String currency){
+    public Wish(String name, float price, ClientInterface wisher, String currency){
         this.name = name;
         this.price = price;
         this.wisher = wisher;
@@ -26,14 +28,14 @@ public class Wish implements Serializable, StoreItem{
     }
 
     @Override
-    public String print() {
+    public String print() throws RemoteException {
         String msg = "";
         msg += wisher.getClientname() + " is wishing for the item: " + name + ", with a max price " + price + " " + currency;
 
         return msg;
     }
 
-    public Client getWisher() {
+    public ClientInterface getWisher() {
         return wisher;
     }
 
