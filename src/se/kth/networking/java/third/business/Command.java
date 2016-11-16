@@ -55,6 +55,18 @@ public class Command {
         return result;
     }
 
+    public static Command createRegisterCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.register);
+        return result;
+    }
+
+    public static Command createUnregisterCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.unregister);
+        return result;
+    }
+
     public static Command createInspectCommand() {
         Command result = new Command();
         result.setCommandName(Client.CommandName.inspect);

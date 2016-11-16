@@ -90,7 +90,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         System.out.println("Connected to bank: " + bankname);
     }
 
-    private Client() throws RemoteException {
+    public Client() throws RemoteException {
         this(DEFAULT_BANK_NAME);
     }
 
