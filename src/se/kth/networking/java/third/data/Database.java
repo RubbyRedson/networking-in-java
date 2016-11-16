@@ -18,15 +18,16 @@ public class Database implements IRepository{
     private static final String DB_URL = "jdbc:mysql://localhost:8889/networking-in-java";
     private static final String USER = "root";
     private static final String PASS = "root";
+    Connection connection;
 
     public Database(){}
 
 
     private Connection getConnection(){
-        Connection con = null;
+        Connection connection = null;
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con = DriverManager.getConnection(DB_URL, USER, PASS);
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -37,14 +38,14 @@ public class Database implements IRepository{
             e.printStackTrace();
         }
 
-        return con;
+        return connection;
     }
 
     private Statement getStatement(){
         Statement stmt = null;
         try {
-            Connection con = getConnection();
-            stmt = con.createStatement();
+            connection = getConnection();
+            stmt = connection.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -53,10 +54,10 @@ public class Database implements IRepository{
     }
 
     private PreparedStatement getPreparedStatement(String sql){
-        Connection con = getConnection();
+        connection = getConnection();
         PreparedStatement preparedStatement = null;
         try {
-             preparedStatement = con.prepareStatement(sql);
+             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -64,24 +65,119 @@ public class Database implements IRepository{
         return preparedStatement;
     }
 
+    private void safeCloseConnection(){
+        if(connection != null){
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void saveItem(int userid, Item item) {
-        
+        try {
+            PreparedStatement prepared = getPreparedStatement("insert into items (name, price, seller) VALUES (?, ?, ?)");
+            prepared.setString(1, item.getName());
+            prepared.setFloat(2, item.getPrice());
+            prepared.setInt(3, userid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
     }
 
     @Override
     public void saveWish(int userid, Wish wish) {
-
+        try {
+            PreparedStatement prepared = getPreparedStatement("insert into items (name, price, wisher) VALUES (?, ?, ?)");
+            prepared.setString(1, wish.getName());
+            prepared.setFloat(2, wish.getPrice());
+            prepared.setInt(3, userid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
     }
 
     @Override
     public List<Item> getAllItems() {
-        return null;
+        Statement stmt = getStatement();
+        List<Item> items = new ArrayList<>();
+        try {
+            ResultSet rs = stmt.executeQuery("select * from items");
+
+            while(rs.next()){
+                //(int id, String name, float price, Client seller, String currency)
+                Item item = new Item(rs.getInt(1), rs.getString(2), rs.getFloat(3), rs.getInt(5), rs.getString(4));
+                items.add(item);
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return items;
     }
 
     @Override
     public User getUserById(int id) {
-        return null;
+        User user = null;
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from users where id = ?");
+            prepared.setInt(1, id);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+                user = new User() {
+
+                    private int id = rs.getInt(1);
+                    private String username = rs.getString(2);
+                    private String password = rs.getString(3);
+
+                    public void setId(int id) {
+                        this.id = id;
+                    }
+
+                    public void setUsername(String username) {
+                        this.username = username;
+                    }
+
+                    public void setPassword(String password) {
+                        this.password = password;
+                    }
+
+                    @Override
+                    public int getId() {
+                        return id;
+                    }
+
+                    @Override
+                    public String getPassword() {
+                        return password;
+                    }
+
+                    @Override
+                    public String getUsername() {
+                        return username;
+                    }
+                };
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return user;
     }
 
     @Override
