@@ -13,15 +13,16 @@ public class Item implements Serializable, StoreItem {
     private String name;
     private float price;
     private String currency;
-    private ClientInterface seller;
-    private ClientInterface buyer;
+
+    private int seller;
+    private int buyer;
     private int id;
 
-    public Item(String name, float price, Client seller){
+    public Item(String name, float price, int seller){
         this(-1, name, price, seller, "SEK");
     }
 
-    public Item(int id, String name, float price, Client seller, String currency){
+    public Item(int id, String name, float price, int seller, String currency){
         this.id = id;
         this.name = name;
         this.price = price;
@@ -57,10 +58,10 @@ public class Item implements Serializable, StoreItem {
     @Override
     public String print() throws RemoteException {
         String msg = "";
-        msg += name + ", " + price + " " + currency + ", seller:" + seller.getClientname();
+        msg += name + ", " + price + " " + currency + ", seller:" + seller;
 
-        if(buyer != null){
-            msg += ", Buyer:" + buyer.getClientname();
+        if(buyer != -1){
+            msg += ", Buyer:" + buyer;
         }else{
             msg += ", Buyer: currently up for grabs";
         }
