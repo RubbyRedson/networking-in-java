@@ -23,11 +23,100 @@ public class Command {
         return commandName;
     }
 
-    public Command() {
+    public static Command createLoginCommand(String username, String password) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.login);
+        result.setUsername(username);
+        result.setPassword(password);
+        return result;
     }
 
-    private Command(Client.CommandName commandName) {
-        this.commandName = commandName;
+    public static Command createLogoutCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.logout);
+        return result;
+    }
+
+    public static Command createListCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.list);
+        return result;
+    }
+
+    public static Command createHelpCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.help);
+        return result;
+    }
+
+    public static Command createQuitCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.quit);
+        return result;
+    }
+
+    public static Command createInspectCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.inspect);
+        return result;
+    }
+
+    public static Command createNewAccountCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.newAccount);
+        return result;
+    }
+
+    public static Command createDeleteAccountCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.deleteAccount);
+        return result;
+    }
+
+    public static Command createBalanceCommand() {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.balance);
+        return result;
+    }
+
+    public static Command createDepositCommand(float amount) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.deposit);
+        result.setAmount(amount);
+        return result;
+    }
+
+    public static Command createWithdrawCommand(float amount) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.withdraw);
+        result.setAmount(amount);
+        return result;
+    }
+
+    public static Command createBuyCommand(String goodName) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.buy);
+        result.setGoodName(goodName);
+        return result;
+    }
+
+    public static Command createSellCommand(String goodName, float goodValue) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.sell);
+        result.setGoodName(goodName);
+        result.setGoodValue(goodValue);
+        return result;
+    }
+
+    public static Command createWishCommand(String goodName, float goodValue) {
+        Command result = new Command();
+        result.setCommandName(Client.CommandName.wish);
+        result.setGoodName(goodName);
+        result.setGoodValue(goodValue);
+        return result;
+    }
+
+    private Command() {
     }
 
     public void setCommandName(Client.CommandName commandName) {
