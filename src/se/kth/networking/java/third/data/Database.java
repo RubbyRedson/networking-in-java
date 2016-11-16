@@ -182,6 +182,7 @@ public class Database implements IRepository{
 
     @Override
     public User login(String username, String password) throws LoginException {
+        
         return null;
     }
 

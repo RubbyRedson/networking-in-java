@@ -43,17 +43,6 @@ public class Item implements Serializable, StoreItem {
         return currency;
     }
 
-    public ClientInterface getBuyer() {
-        return buyer;
-    }
-
-    public void setBuyer(ClientInterface buyer) {
-        this.buyer = buyer;
-    }
-
-    public ClientInterface getSeller() {
-        return seller;
-    }
 
     @Override
     public String print() throws RemoteException {
@@ -69,9 +58,6 @@ public class Item implements Serializable, StoreItem {
         return msg;
     }
 
-    public void setSeller(ClientInterface seller) {
-        this.seller = seller;
-    }
 
     @Override
     public String toString() {
@@ -86,6 +72,18 @@ public class Item implements Serializable, StoreItem {
 
     public int getId() {
         return id;
+    }
+
+    public int getSeller() {
+        return seller;
+    }
+
+    public int getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(int buyer) {
+        this.buyer = buyer;
     }
 }
 
