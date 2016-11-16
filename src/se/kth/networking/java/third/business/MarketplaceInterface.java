@@ -1,5 +1,6 @@
-package se.kth.networking.java.third;
+package se.kth.networking.java.third.business;
 
+import se.kth.networking.java.third.ClientInterface;
 import se.kth.networking.java.third.model.Item;
 
 import se.kth.networking.java.third.model.StoreItem;

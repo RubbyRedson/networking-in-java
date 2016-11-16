@@ -1,4 +1,6 @@
-package se.kth.networking.java.third;
+package se.kth.networking.java.third.business;
+
+import se.kth.networking.java.third.Client;
 
 /**
  * Created by victoraxelsson on 2016-11-15.
