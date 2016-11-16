@@ -5,6 +5,8 @@ import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
 
 import javax.security.auth.login.LoginException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,17 @@ public class Database implements IRepository{
     Connection connection;
 
     public Database(){}
+
+    private String doHash(String src){
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return new String(md.digest(src.getBytes()));
+    }
 
 
     private Connection getConnection(){
@@ -75,6 +88,63 @@ public class Database implements IRepository{
         }
     }
 
+    private User getUserByUsername(String username) {
+        User user = null;
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from users where username = ?");
+            prepared.setString(1, username);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+                user = fillUser(rs.getInt(1), rs.getString(2), rs.getString(3));
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return user;
+    }
+
+    private User fillUser(int _id, String _username, String _password){
+        return new User() {
+
+            private int id = _id;
+            private String username = _username;
+            private String password = _password;
+
+            public void setId(int id) {
+                this.id = id;
+            }
+
+            public void setUsername(String username) {
+                this.username = username;
+            }
+
+            public void setPassword(String password) {
+                this.password = password;
+            }
+
+            @Override
+            public int getId() {
+                return id;
+            }
+
+            @Override
+            public String getPassword() {
+                return password;
+            }
+
+            @Override
+            public String getUsername() {
+                return username;
+            }
+        };
+    }
+
     @Override
     public void saveItem(int userid, Item item) {
         try {
@@ -82,6 +152,7 @@ public class Database implements IRepository{
             prepared.setString(1, item.getName());
             prepared.setFloat(2, item.getPrice());
             prepared.setInt(3, userid);
+            prepared.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -96,6 +167,7 @@ public class Database implements IRepository{
             prepared.setString(1, wish.getName());
             prepared.setFloat(2, wish.getPrice());
             prepared.setInt(3, userid);
+            prepared.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -134,39 +206,7 @@ public class Database implements IRepository{
             prepared.setInt(1, id);
             ResultSet rs = prepared.executeQuery();
             while(rs.next()){
-                user = new User() {
-
-                    private int id = rs.getInt(1);
-                    private String username = rs.getString(2);
-                    private String password = rs.getString(3);
-
-                    public void setId(int id) {
-                        this.id = id;
-                    }
-
-                    public void setUsername(String username) {
-                        this.username = username;
-                    }
-
-                    public void setPassword(String password) {
-                        this.password = password;
-                    }
-
-                    @Override
-                    public int getId() {
-                        return id;
-                    }
-
-                    @Override
-                    public String getPassword() {
-                        return password;
-                    }
-
-                    @Override
-                    public String getUsername() {
-                        return username;
-                    }
-                };
+                user = fillUser(rs.getInt(1), rs.getString(2), rs.getString(3));
             }
 
             rs.close();
@@ -182,13 +222,42 @@ public class Database implements IRepository{
 
     @Override
     public User login(String username, String password) throws LoginException {
-        
-        return null;
+        User user = getUserByUsername(username);
+
+        if(user != null){
+            if(user.getPassword().equals(doHash(password))){
+                return user;
+            }else{
+                user = null;
+            }
+        }
+
+        return user;
     }
 
     @Override
     public User register(String username, String password) {
-        return null;
+
+        User u = getUserByUsername(username);
+        User newUser = null;
+        if(u == null){
+            PreparedStatement prepared = getPreparedStatement("insert into users (username, password) VALUES (?, ?)");
+            try {
+                prepared.setString(1, username);
+                prepared.setString(2, doHash(password));
+                prepared.execute();
+
+                newUser = getUserByUsername(username);
+
+            } catch (SQLException e) {
+
+                e.printStackTrace();
+            }finally {
+                safeCloseConnection();
+            }
+        }
+
+        return newUser;
     }
 
     /*
