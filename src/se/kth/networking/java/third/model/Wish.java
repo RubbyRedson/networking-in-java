@@ -1,7 +1,6 @@
 package se.kth.networking.java.third.model;
 
-import se.kth.networking.java.second.ClientInterface;
-import se.kth.networking.java.second.models.StoreItem;
+import se.kth.networking.java.third.ClientInterface;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;

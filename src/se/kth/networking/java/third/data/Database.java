@@ -1,6 +1,7 @@
 package se.kth.networking.java.third.data;
 
 import se.kth.networking.java.third.model.Item;
+import se.kth.networking.java.third.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -104,5 +105,10 @@ public class Database implements IRepository{
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return null;
     }
 }
