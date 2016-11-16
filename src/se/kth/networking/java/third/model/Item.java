@@ -15,18 +15,20 @@ public class Item implements Serializable, StoreItem {
     private String currency;
     private ClientInterface seller;
     private ClientInterface buyer;
+    private int id;
 
     public Item(String name, float price, Client seller){
-        this(name, price, "SEK");
-
-        this.seller = seller;
+        this(-1, name, price, seller, "SEK");
     }
 
-    public Item(String name, float price, String currency){
+    public Item(int id, String name, float price, Client seller, String currency){
+        this.id = id;
         this.name = name;
         this.price = price;
+        this.seller = seller;
         this.currency = currency;
     }
+
 
     public String getName() {
         return name;
@@ -79,6 +81,10 @@ public class Item implements Serializable, StoreItem {
                 ", seller=" + seller +
                 ", buyer=" + buyer +
                 '}';
+    }
+
+    public int getId() {
+        return id;
     }
 }
 

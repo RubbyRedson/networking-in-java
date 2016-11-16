@@ -63,21 +63,22 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized void registerClient(String userName, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+    public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
         clients.put(userName, client);
         System.out.println("register in marketplace " + userName);
     }
 
     @Override
-    public synchronized void unregisterClient(String userName, ClientInterface client) throws RemoteException {
-        System.out.println("unregister in marketplace " + userName);
+    public synchronized void unregisterClient(int userId) throws RemoteException {
+        System.out.println("unregister in marketplace " + userId);
 
         //Remove client from all registered clients
-        clients.remove(userName);
+        //clients.remove(userName);
 
         List<Item> toBeRemoved = new ArrayList<>();
         List<Wish> toBeRemovedWishes = new ArrayList<>();
 
+        /*
         //Remove all items that have the same client?
         //Start by collecting all items that this client is selling
         for (int i = 0; i < store.size(); i++) {
@@ -109,10 +110,12 @@ public class Marketplace implements MarketplaceInterface {
         for (int i = 0; i < toBeRemovedWishes.size(); i++) {
             wishes.remove(toBeRemovedWishes.get(i));
         }
+        */
     }
 
     @Override
-    public synchronized void sellItem(String username, Item item) throws RemoteException {
+    public synchronized void sellItem(int userId, Item item) throws RemoteException {
+        /*
         if (!clients.containsKey(username))
             throw new RemoteException("No such client registered!\n" + username);
         item.setSeller(clients.get(username));
@@ -130,11 +133,12 @@ public class Marketplace implements MarketplaceInterface {
                 }
             }
         }
+        */
 
     }
 
     @Override
-    public synchronized void wishItem(Wish wish) throws RemoteException {
+    public synchronized void wishItem(int userId, Wish wish) throws RemoteException {
         wishes.add(wish);
         System.out.println("Wish added: " + wish.print());
         for (Item item : store) {
@@ -146,7 +150,8 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized boolean buyItem(String buyer, Item item) throws RemoteException {
+    public synchronized boolean buyItem(int userIrd, Item item) throws RemoteException {
+        /*
         if (!clients.containsKey(buyer))
             throw new RemoteException("No such client registered!\n" + buyer);
         ClientInterface buyerClient = clients.get(buyer);
@@ -173,6 +178,7 @@ public class Marketplace implements MarketplaceInterface {
             }
         }
         buyerClient.print("No such item found for sale!");
+        */
         return false;
     }
 
