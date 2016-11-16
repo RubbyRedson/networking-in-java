@@ -2,7 +2,9 @@ package se.kth.networking.java.third.data;
 
 import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.User;
+import se.kth.networking.java.third.model.Wish;
 
+import javax.security.auth.login.LoginException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ public class Database implements IRepository{
     private static final String DB_URL = "jdbc:mysql://localhost:8889/networking-in-java";
     private static final String USER = "root";
     private static final String PASS = "root";
+
+    public Database(){}
 
 
     private Connection getConnection(){
@@ -60,40 +64,37 @@ public class Database implements IRepository{
         return preparedStatement;
     }
 
-
-
-    public Database(){
-        /*
-        Connection con = null;
-        Statement stmt = null;
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con = DriverManager.getConnection(DB_URL, USER, PASS);
-
-            stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM items");
-
-            List<String> names = new ArrayList<>();
-            while (rs.next()){
-                String name = rs.getString(2);
-                names.add(name);
-            }
-
-            System.out.println(names);
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        */
+    @Override
+    public void saveItem(int userid, Item item) {
+        
     }
 
+    @Override
+    public void saveWish(int userid, Wish wish) {
+
+    }
+
+    @Override
+    public List<Item> getAllItems() {
+        return null;
+    }
+
+    @Override
+    public User getUserById(int id) {
+        return null;
+    }
+
+    @Override
+    public User login(String username, String password) throws LoginException {
+        return null;
+    }
+
+    @Override
+    public User register(String username, String password) {
+        return null;
+    }
+
+    /*
     @Override
     public void saveItem(Item item) {
         Statement stmt = getStatement();
@@ -106,9 +107,6 @@ public class Database implements IRepository{
             e.printStackTrace();
         }
     }
+    */
 
-    @Override
-    public List<User> getAllUsers() {
-        return null;
-    }
 }
