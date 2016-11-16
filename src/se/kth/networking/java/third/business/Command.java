@@ -6,17 +6,14 @@ import se.kth.networking.java.third.Client;
  * Created by victoraxelsson on 2016-11-15.
  */
 public class Command {
-    private String userName = null;
+    private String username = null;
+    private String password = null;
     private float amount = Float.MIN_VALUE;
     private Client.CommandName commandName;
 
     //Marketplace
     private String goodName = null;
     private float goodValue = Float.MIN_VALUE;
-
-    public String getUserName() {
-        return userName;
-    }
 
     public float getAmount() {
         return amount;
@@ -29,13 +26,8 @@ public class Command {
     public Command() {
     }
 
-    private Command(Client.CommandName commandName, String userName) {
+    private Command(Client.CommandName commandName) {
         this.commandName = commandName;
-        this.userName = userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public void setCommandName(Client.CommandName commandName) {
@@ -68,10 +60,27 @@ public class Command {
         this.goodName = goodName;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         return "Command{" +
-                "userName='" + userName + '\'' +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
                 ", amount=" + amount +
                 ", commandName=" + commandName +
                 ", goodName='" + goodName + '\'' +
