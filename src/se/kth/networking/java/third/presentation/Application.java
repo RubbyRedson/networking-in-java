@@ -49,10 +49,10 @@ public class Application extends javafx.application.Application {
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
 //        grid.add(scenetitle, 0, 0, 2, 1);
 
-        firstLabel = new Label("Username:");
+        firstLabel = new Label("Username");
         grid.add(firstLabel, 0, 2);
 
-        secondLabel = new Label("Password:");
+        secondLabel = new Label("Password");
         grid.add(secondLabel, 0, 3);
 
         firstTextField = new TextField();
@@ -152,6 +152,11 @@ public class Application extends javafx.application.Application {
         Button btn = new Button("Execute");
         btn.setOnAction(event -> {
             lbl.setText(commandName + " " + firstTextField.getText() + " " + secondTextField.getText());
+            String validate = validateForm();
+            if (validate != null) {
+                lbl.setText(validate);
+                return;
+            }
             Command command = null;
             switch (commandName) {
                 case register:
@@ -207,6 +212,47 @@ public class Application extends javafx.application.Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Marketplace application");
         primaryStage.show();
+    }
+
+    private String validateForm() {
+        if (!firstTextField.isEditable() && !secondTextField.isEditable()) return null;
+        if (firstTextField.isEditable()) {
+            String first = firstTextField.getText();
+            switch (firstLabel.getText()) {
+                case "Username":
+                case "Good Name":
+                    if (first == null || first.trim().isEmpty()) return firstLabel.getText() + " can't be empty";
+                case "Amount":
+                    if (first == null || first.trim().isEmpty()) return firstLabel.getText() + " can't be empty";
+                    try {
+                        float parsed = Float.parseFloat(first);
+                        if (parsed <= 0) return firstLabel.getText() + " must contain a positive number";
+                    }
+                    catch (NumberFormatException e) {
+                        return firstLabel.getText() + " must contain a number";
+                    }
+            }
+        }
+
+        if (secondTextField.isEditable()) {
+            String second = secondTextField.getText();
+            switch (secondLabel.getText()) {
+                case "Password":
+                    if (second == null || second.trim().isEmpty()) return secondLabel.getText() + " can't be empty";
+                    if (second.length() < 8) return secondLabel.getText() + " must contain at least 8 characters";
+                case "Price":
+                    if (second == null || second.trim().isEmpty()) return secondLabel.getText() + " can't be empty";
+                    try {
+                        float price = Float.parseFloat(second);
+                        if (price <= 0) return secondLabel.getText() + " must contain a positive number";
+                    }
+                    catch (NumberFormatException exc) {
+                        return secondLabel.getText() + " must contain a number";
+                    }
+            }
+        }
+
+        return null;
     }
 
     private void noneVisible() {
