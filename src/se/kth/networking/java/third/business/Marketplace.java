@@ -26,14 +26,10 @@ import java.util.List;
 public class Marketplace implements MarketplaceInterface {
 
     private HashMap<String, ClientInterface> clients;
-    private List<Item> store;
-    private List<Wish> wishes;
     private IRepository database;
 
     private Marketplace(IRepository repo) {
         clients = new HashMap<>();
-        store = new ArrayList<>();
-        wishes = new ArrayList<>();
         this.database = repo;
     }
 
@@ -234,13 +230,13 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized boolean buyItem(int userIrd, Item item) throws RemoteException {
+    public synchronized boolean buyItem(int userIrd, Item item) throws RemoteException, BusinessLogicException {
 
         User buyer = database.getUserById(userIrd);
 
 
         if(!clients.containsKey(buyer.getUsername())){
-            throw new RemoteException("No such client registered!\n" + buyer);
+            throw new BusinessLogicException("No such client registered!\n" + buyer);
         }
 
         Item dbItem = database.getItemByName(item.getName());
@@ -271,8 +267,7 @@ public class Marketplace implements MarketplaceInterface {
                 System.out.println("Item was bought: " + item.print());
                 return true;
             } else {
-                buyerClient.print("Insufficient funds");
-                return false;
+                throw new BusinessLogicException("Insufficient funds!");
             }
         }
 

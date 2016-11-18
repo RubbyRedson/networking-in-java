@@ -1,5 +1,6 @@
 package se.kth.networking.java.third.presentation;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -324,6 +325,11 @@ public class Application extends javafx.application.Application {
     }
 
     public void println(String s) {
-        lbl.setText(lbl.getText() + "\n" + s);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                lbl.setText(lbl.getText() + "\n------------------\n" + s);
+            }
+        });
     }
 }

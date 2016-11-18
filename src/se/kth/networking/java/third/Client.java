@@ -204,7 +204,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                     account.withdraw(command.getAmount());
                     break;
                 case balance:
-                    this.print("balance: $" + account.getBalance());
+                    this.print("Balance: $" + account.getBalance());
                     break;
                 default:
                     this.print("Illegal command");
@@ -235,6 +235,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                 case sell:
                     Item item = new Item(command.getGoodName(), command.getGoodValue(), getId());
                     marketplaceobj.sellItem(getId(), item);
+                    print("You are now selling " + item.getName() + " for " + item.getPrice());
                     return;
                 case wish:
                     Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this.getId());

@@ -21,7 +21,7 @@ public interface MarketplaceInterface extends Remote {
     void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException, BusinessLogicException;
     void unregisterClient(int userId) throws RemoteException;
     void sellItem(int userId, Item item) throws RemoteException;
-    boolean buyItem(int userId, Item item) throws RemoteException;
+    boolean buyItem(int userId, Item item) throws RemoteException, BusinessLogicException;
     List<StoreItem> listItems() throws RemoteException;
     void wishItem(int userId, Wish wish) throws RemoteException;
 }
