@@ -90,6 +90,8 @@ public class Marketplace implements MarketplaceInterface {
             e.printStackTrace();
         }
 
+        clients.put(userName, client);
+
         client.userLoginCallback(user);
     }
 
@@ -140,6 +142,26 @@ public class Marketplace implements MarketplaceInterface {
 
     @Override
     public synchronized void sellItem(int userId, Item item) throws RemoteException {
+
+        User user = database.getUserById(userId);
+        if(!clients.containsKey(user.getUsername())){
+            throw new RemoteException("No such client registered!\n" + user.getUsername());
+        }
+
+        database.saveItem(userId, item);
+
+        List<Wish> wishes =  database.getAllWishes();
+
+        for (int i = 0; i < wishes.size(); i++){
+            Wish wish = wishes.get(i);
+            if (item.getPrice() <= wish.getPrice()) {
+
+                //We have a wisher!
+                getClientById(wish.getWisher()).print("An object that is in your " +
+                        "wishlist is being sold A " + item.getName() + " for " + item.getPrice());
+            }
+        }
+
         /*
         if (!clients.containsKey(username))
             throw new RemoteException("No such client registered!\n" + username);
@@ -181,10 +203,14 @@ public class Marketplace implements MarketplaceInterface {
 
     @Override
     public synchronized void wishItem(int userId, Wish wish) throws RemoteException {
-        wishes.add(wish);
-        System.out.println("Wish added: " + wish.print());
-        for (Item item : store) {
+
+        database.saveWish(userId, wish);
+
+        List<Item> allItems = database.getAllItems();
+
+        for (Item item : allItems) {
             if (item.getPrice() <= wish.getPrice()) {
+
 
                 ClientInterface client = getClientById(userId);
 

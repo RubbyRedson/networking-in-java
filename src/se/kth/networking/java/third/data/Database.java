@@ -144,7 +144,7 @@ public class Database implements IRepository {
     @Override
     public void saveWish(int userid, Wish wish) {
         try {
-            PreparedStatement prepared = getPreparedStatement("insert into items (name, price, wisher) VALUES (?, ?, ?)");
+            PreparedStatement prepared = getPreparedStatement("insert into wishes (name, price, wisher) VALUES (?, ?, ?)");
             prepared.setString(1, wish.getName());
             prepared.setFloat(2, wish.getPrice());
             prepared.setInt(3, userid);
