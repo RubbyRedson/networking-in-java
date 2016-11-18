@@ -5,6 +5,7 @@ import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
 
 import javax.security.auth.login.LoginException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
@@ -26,13 +27,24 @@ public class Database implements IRepository{
 
     private String doHash(String src){
         MessageDigest md = null;
+        String hashed = "SoucePan";
         try {
-            md = MessageDigest.getInstance("SHA-1");
+            md = MessageDigest.getInstance("MD5");
+            md.reset();
+            md.update(src.getBytes());
+            byte[] digest = md.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            hashed = bigInt.toString(16);
+
+            while (hashed.length() < 32){
+                hashed = "0" + hashed;
+            }
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
-        return new String(md.digest(src.getBytes()));
+        return hashed;
     }
 
 
