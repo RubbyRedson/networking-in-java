@@ -82,8 +82,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
             bankobj = (Bank) Naming.lookup(bankname);
             marketplaceobj = (MarketplaceInterface) Naming.lookup("marketplace"); //TODO constant
         } catch (Exception e) {
-
-
             System.out.println("The runtime failed: " + e.getMessage());
             System.exit(0);
         }
@@ -138,7 +136,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
             case list:
                 try {
                     for (String accountHolder : bankobj.listAccounts()) {
-                        System.out.println(accountHolder);
+                        this.print(accountHolder);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -149,7 +147,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                 System.exit(0);
             case help:
                 for (CommandName commandName : CommandName.values()) {
-                    System.out.println(commandName);
+                    this.print(commandName.toString());
                 }
                 return;
             case login:
@@ -169,7 +167,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
 
         if (userName == null) {
             username = getUsername();
-            return;
         }
 
         if (CommandName.isBankingCommand(command.getCommandName())) {
@@ -185,7 +182,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
             // all further commands require a Account reference
             Account acc = bankobj.getAccount(userName);
             if (acc == null) {
-                System.out.println("No account for " + userName);
+                this.print("No account for " + userName);
                 return;
             } else {
                 account = acc;
@@ -193,7 +190,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
 
             switch (command.getCommandName()) {
                 case getAccount:
-                    System.out.println(account);
+                    this.print(account.toString());
                     break;
                 case deposit:
                     account.deposit(command.getAmount());
@@ -202,10 +199,10 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                     account.withdraw(command.getAmount());
                     break;
                 case balance:
-                    System.out.println("balance: $" + account.getBalance());
+                    this.print("balance: $" + account.getBalance());
                     break;
                 default:
-                    System.out.println("Illegal command");
+                    this.print("Illegal command");
             }
         } else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
@@ -218,10 +215,10 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
 
                 //these would require the client to be registered
                 case inspect:
-                    System.out.println("I have " + marketplaceobj.listItems().size() + " items in the store");
+                    this.print("I have " + marketplaceobj.listItems().size() + " items in the store");
                     List<StoreItem> store = marketplaceobj.listItems();
                     for (StoreItem aStore : store) {
-                        System.out.println(aStore.print());
+                        this.print(aStore.print());
                     }
                     return;
                 case buy:
@@ -242,8 +239,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
 
     @Override
     public void print(String s) throws RemoteException {
-        System.out.println(s);
-        System.out.print(getUsername() + "@" + bankname + ">");
+        app.println(s);
     }
 
     @Override

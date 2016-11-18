@@ -34,7 +34,6 @@ public class Application extends javafx.application.Application {
     ComboBox commands;
 
     public Application() throws RemoteException {
-        client = new Client(this);
     }
 
     @Override
@@ -63,6 +62,7 @@ public class Application extends javafx.application.Application {
         grid.add(secondTextField, 1, 3, 2, 1);
 
         lbl = new Label();
+        lbl.setWrapText(true);
         ScrollPane sp = new ScrollPane();
         sp.setContent(lbl);
         grid.add(sp, 0, 0, 4, 1);
@@ -74,77 +74,77 @@ public class Application extends javafx.application.Application {
         commands.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String t, String t1) {
-                switch (t1) {
-                    case "Register":
-                        commandName = Client.CommandName.register;
-                        twoVisible();
-                        firstLabel.setText("Username");
-                        secondLabel.setText("Password");
-                        break;
-                    case "Login":
-                        commandName = Client.CommandName.login;
-                        twoVisible();
-                        firstLabel.setText("Username");
-                        secondLabel.setText("Password");
-                        break;
-                    case "Logout":
-                        commandName = Client.CommandName.logout;
-                        noneVisible();
-                        break;
-                    case "Balance":
-                        commandName = Client.CommandName.balance;
-                        noneVisible();
-                        break;
-                    case "List":
-                        commandName = Client.CommandName.list;
-                        noneVisible();
-                        break;
-                    case "Inspect":
-                        commandName = Client.CommandName.inspect;
-                        noneVisible();
-                        break;
-                    case "Unregister":
-                        commandName = Client.CommandName.unregister;
-                        noneVisible();
-                        break;
-                    case "Wish":
-                        commandName = Client.CommandName.wish;
-                        twoVisible();
-                        firstLabel.setText("Good Name");
-                        secondLabel.setText("Price");
-                        break;
-                    case "Sell":
-                        commandName = Client.CommandName.sell;
-                        twoVisible();
-                        firstLabel.setText("Good Name");
-                        secondLabel.setText("Price");
-                        break;
-                    case "Buy":
-                        commandName = Client.CommandName.buy;
-                        oneVisible();
-                        firstLabel.setText("Good Name");
-                        break;
-                    case "Deposit":
-                        commandName = Client.CommandName.deposit;
-                        oneVisible();
-                        firstLabel.setText("Amount");
-                        break;
-                    case "Withdraw":
-                        commandName = Client.CommandName.withdraw;
-                        oneVisible();
-                        firstLabel.setText("Amount");
-                        break;
-                }
+                if (t1 != null)
+                    switch (t1) {
+                        case "Register":
+                            commandName = Client.CommandName.register;
+                            twoVisible();
+                            firstLabel.setText("Username");
+                            secondLabel.setText("Password");
+                            break;
+                        case "Login":
+                            commandName = Client.CommandName.login;
+                            twoVisible();
+                            firstLabel.setText("Username");
+                            secondLabel.setText("Password");
+                            break;
+                        case "Logout":
+                            commandName = Client.CommandName.logout;
+                            noneVisible();
+                            break;
+                        case "Balance":
+                            commandName = Client.CommandName.balance;
+                            noneVisible();
+                            break;
+                        case "List":
+                            commandName = Client.CommandName.list;
+                            noneVisible();
+                            break;
+                        case "Inspect":
+                            commandName = Client.CommandName.inspect;
+                            noneVisible();
+                            break;
+                        case "Unregister":
+                            commandName = Client.CommandName.unregister;
+                            noneVisible();
+                            break;
+                        case "Wish":
+                            commandName = Client.CommandName.wish;
+                            twoVisible();
+                            firstLabel.setText("Good Name");
+                            secondLabel.setText("Price");
+                            break;
+                        case "Sell":
+                            commandName = Client.CommandName.sell;
+                            twoVisible();
+                            firstLabel.setText("Good Name");
+                            secondLabel.setText("Price");
+                            break;
+                        case "Buy":
+                            commandName = Client.CommandName.buy;
+                            oneVisible();
+                            firstLabel.setText("Good Name");
+                            break;
+                        case "Deposit":
+                            commandName = Client.CommandName.deposit;
+                            oneVisible();
+                            firstLabel.setText("Amount");
+                            break;
+                        case "Withdraw":
+                            commandName = Client.CommandName.withdraw;
+                            oneVisible();
+                            firstLabel.setText("Amount");
+                            break;
+                    }
             }
         });
         grid.add(commands, 1, 1, 3, 1);
 
         Button btn = new Button("Execute");
         btn.setOnAction(event -> {
-            lbl.setText(commandName + " " + firstTextField.getText() + " " + secondTextField.getText());
             String validate = validateForm();
             if (validate != null) {
-                lbl.setText(validate);
+                lbl.setText(lbl.getText() + "\n" + validate);
                 return;
             }
             Command command = null;
@@ -163,6 +163,12 @@ public class Application extends javafx.application.Application {
                     break;
                 case balance:
                     command = Command.createBalanceCommand();
+                    break;
+                case deposit:
+                    command = Command.createDepositCommand(Float.parseFloat(firstTextField.getText()));
+                    break;
+                case withdraw:
+                    command = Command.createWithdrawCommand(Float.parseFloat(firstTextField.getText()));
                     break;
                 case inspect:
                     command = Command.createInspectCommand();
@@ -209,6 +215,7 @@ public class Application extends javafx.application.Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Marketplace application");
         primaryStage.show();
+        client = new Client(this);
     }
 
     private String validateForm() {
@@ -217,9 +224,9 @@ public class Application extends javafx.application.Application {
             String first = firstTextField.getText();
             switch (firstLabel.getText()) {
                 case "Username":
-                    if(first == null || first.trim().isEmpty() || first.trim().length() < 3){
+                    if (first == null || first.trim().isEmpty() || first.trim().length() < 3) {
                         return firstLabel.getText() + " must be at least 3 chars long";
-                    }else{
+                    } else {
                         return null;
                     }
                 case "Good Name":
@@ -230,8 +237,7 @@ public class Application extends javafx.application.Application {
                     try {
                         float parsed = Float.parseFloat(first);
                         if (parsed <= 0) return firstLabel.getText() + " must contain a positive number";
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         return firstLabel.getText() + " must contain a number";
                     }
             }
@@ -249,8 +255,7 @@ public class Application extends javafx.application.Application {
                     try {
                         float price = Float.parseFloat(second);
                         if (price <= 0) return secondLabel.getText() + " must contain a positive number";
-                    }
-                    catch (NumberFormatException exc) {
+                    } catch (NumberFormatException exc) {
                         return secondLabel.getText() + " must contain a number";
                     }
                     break;
@@ -307,6 +312,8 @@ public class Application extends javafx.application.Application {
                 "Wish",
                 "Inspect"
         );
+        comboBox.setValue("Deposit");
+        commandName = Client.CommandName.deposit;
         return comboBox;
     }
 
@@ -316,6 +323,8 @@ public class Application extends javafx.application.Application {
                 "Register",
                 "Login"
         );
+        comboBox.setValue("Register");
+        commandName = Client.CommandName.register;
         return comboBox;
     }
 
