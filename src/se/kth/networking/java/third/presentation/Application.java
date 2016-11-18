@@ -15,7 +15,6 @@ import javafx.stage.Stage;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
 import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.business.Command;
-import se.kth.networking.java.third.data.Database;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -35,7 +34,7 @@ public class Application extends javafx.application.Application {
     ComboBox commands;
 
     public Application() throws RemoteException {
-        client = new Client();
+        client = new Client(this);
     }
 
     @Override
@@ -318,5 +317,9 @@ public class Application extends javafx.application.Application {
                 "Login"
         );
         return comboBox;
+    }
+
+    public void println(String s) {
+        lbl.setText(lbl.getText() + "\n" + s);
     }
 }

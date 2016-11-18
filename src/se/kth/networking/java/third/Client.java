@@ -10,7 +10,9 @@ import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.StoreItem;
 import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
+import se.kth.networking.java.third.presentation.Application;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -34,6 +36,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     private int id;
     private String username;
     private String password;
+    private Application app;
 
     public enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
@@ -87,8 +90,9 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         System.out.println("Connected to bank: " + bankname);
     }
 
-    public Client() throws RemoteException {
+    public Client(Application app) throws RemoteException {
         this(DEFAULT_BANK_NAME);
+        this.app = app;
     }
 
     public boolean buyCallback(Item item) {
@@ -129,6 +133,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     }
 
     public void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
+        app.println("execute");
         switch (command.getCommandName()) {
             case list:
                 try {

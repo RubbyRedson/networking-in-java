@@ -1,6 +1,5 @@
 package se.kth.networking.java.third.data;
 
-import se.kth.id2212.ex2.bankrmi.Account;
 import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
