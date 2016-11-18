@@ -154,6 +154,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                     setUsername(command.getUsername());
                     setPassword(command.getPassword());
                     marketplaceobj.loginClient(command.getUsername(), command.getPassword(), this);
+                    bankobj.newAccount(command.getUsername());
                     break;
 
             case logout:
@@ -180,9 +181,9 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
             }
 
             // all further commands require a Account reference
-            Account acc = bankobj.getAccount(userName);
+            Account acc = bankobj.getAccount(getUsername());
             if (acc == null) {
-                this.print("No account for " + userName);
+                this.print("No account for " + getUsername());
                 return;
             } else {
                 account = acc;
