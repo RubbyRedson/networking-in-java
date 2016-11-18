@@ -1,5 +1,6 @@
 package se.kth.networking.java.third.data;
 
+import se.kth.networking.java.third.model.ConcreterUser;
 import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Created by victoraxelsson on 2016-11-15.
  */
-public class Database implements IRepository{
+public class Database implements IRepository {
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://localhost:8889/networking-in-java";
@@ -122,39 +123,7 @@ public class Database implements IRepository{
     }
 
     private User fillUser(int _id, String _username, String _password){
-        return new User(){
-
-            private int id = _id;
-            private String username = _username;
-            private String password = _password;
-
-            public void setId(int id) {
-                this.id = id;
-            }
-
-            public void setUsername(String username) {
-                this.username = username;
-            }
-
-            public void setPassword(String password) {
-                this.password = password;
-            }
-
-            @Override
-            public int getId() {
-                return id;
-            }
-
-            @Override
-            public String getPassword() {
-                return password;
-            }
-
-            @Override
-            public String getUsername() {
-                return username;
-            }
-        };
+        return new ConcreterUser(_id, _password, _username);
     }
 
     @Override
