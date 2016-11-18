@@ -32,6 +32,7 @@ public class Application extends javafx.application.Application {
     Label firstLabel;
     Label secondLabel;
     Client.CommandName commandName = Client.CommandName.register;
+    ComboBox commands;
 
     public Application() throws RemoteException {
         client = new Client();
@@ -69,23 +70,9 @@ public class Application extends javafx.application.Application {
         grid.add(sp, 0, 0, 4, 1);
 
         //dropdown
-        ComboBox commands = new ComboBox();
-        commands.getItems().addAll(
-                "Register",
-                "Unregister",
-                "Login",
-                "Logout",
-                "Deposit",
-                "Withdraw",
-                "Balance",
-                "List",
-                "Buy",
-                "Sell",
-                "Wish",
-                "Inspect"
-        );
+        commands = new ComboBox();
         commands.setValue("Register");
-
+        commands = notLoggedIn(commands);
         commands.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String t, String t1) {
@@ -197,6 +184,11 @@ public class Application extends javafx.application.Application {
             }
             try {
                 client.execute(command);
+                if (command.getCommandName() == Client.CommandName.login) {
+                    commands = fullList(commands);
+                } else if (command.getCommandName() == Client.CommandName.logout || command.getCommandName() == Client.CommandName.unregister) {
+                    commands = notLoggedIn(commands);
+                }
             } catch (RemoteException e) {
                 e.printStackTrace();
             } catch (RejectedException e) {
@@ -204,6 +196,8 @@ public class Application extends javafx.application.Application {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (NotBoundException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             //do stuff
@@ -299,5 +293,33 @@ public class Application extends javafx.application.Application {
         secondTextField.setVisible(false);
         firstLabel.setVisible(true);
         secondLabel.setVisible(false);
+    }
+
+    private ComboBox fullList(ComboBox comboBox) {
+        comboBox.getItems().removeAll(comboBox.getItems());
+        comboBox.getItems().addAll(
+                "Register",
+                "Unregister",
+                "Login",
+                "Logout",
+                "Deposit",
+                "Withdraw",
+                "Balance",
+                "List",
+                "Buy",
+                "Sell",
+                "Wish",
+                "Inspect"
+        );
+        return comboBox;
+    }
+
+    private ComboBox notLoggedIn(ComboBox comboBox) {
+        comboBox.getItems().removeAll(comboBox.getItems());
+        comboBox.getItems().addAll(
+                "Register",
+                "Login"
+        );
+        return comboBox;
     }
 }
