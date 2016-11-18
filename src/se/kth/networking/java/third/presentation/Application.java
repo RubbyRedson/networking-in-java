@@ -298,9 +298,7 @@ public class Application extends javafx.application.Application {
     private ComboBox fullList(ComboBox comboBox) {
         comboBox.getItems().removeAll(comboBox.getItems());
         comboBox.getItems().addAll(
-                "Register",
                 "Unregister",
-                "Login",
                 "Logout",
                 "Deposit",
                 "Withdraw",
