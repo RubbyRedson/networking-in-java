@@ -204,6 +204,30 @@ public class Database implements IRepository {
     }
 
     @Override
+    public Item getItemByName(String name) {
+        Item item = null;
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from items where name like ?");
+            prepared.setString(1, name);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+                //int id, String name, float price, int seller, String currency
+                item = new Item(rs.getInt(1), rs.getString(2), rs.getFloat(3), rs.getInt(5), rs.getString(4));
+                item.setBuyer(rs.getInt(6));
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return item;
+    }
+
+    @Override
     public Item updateItem(Item item) {
         try {
             PreparedStatement prepared = getPreparedStatement("UPDATE items SET name=?, price=?, currency=?, seller=?, buyer=? where id=?");
@@ -272,7 +296,11 @@ public class Database implements IRepository {
             ResultSet rs = stmt.executeQuery("select * from wishes");
 
             while(rs.next()){
-                wishes.add(new Wish(rs.getString(1), rs.getFloat(2), rs.getInt(3)));
+
+                //int id, String name, float price, int wisher, String currency
+                //id,           name,       price,      currenct,       wisher
+
+                wishes.add(new Wish(rs.getInt(1), rs.getString(2), rs.getFloat(3), rs.getInt(5), rs.getString(4)));
             }
             rs.close();
 

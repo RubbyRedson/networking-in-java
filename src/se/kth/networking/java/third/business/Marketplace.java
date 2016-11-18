@@ -187,14 +187,19 @@ public class Marketplace implements MarketplaceInterface {
     private ClientInterface getClientById(int userId){
         ClientInterface client = null;
         User user = database.getUserById(userId);
-
-        for(int i = 0; i < clients.size(); i++){
+        if (user != null){
+            ClientInterface currClient = null;
+            String name = null;
             try {
-                if(clients.get(i).getClientname().equals(user.getUsername())){
-                    client = clients.get(i);
-                }
+                currClient = clients.get(user.getUsername());
+                name = currClient.getClientname();
+
             } catch (RemoteException e) {
                 e.printStackTrace();
+            }
+
+            if(name != null && name.equals(user.getUsername())){
+                client = currClient;
             }
         }
 
@@ -230,7 +235,8 @@ public class Marketplace implements MarketplaceInterface {
             throw new RemoteException("No such client registered!\n" + buyer);
         }
 
-        Item dbItem = database.getItemById(item.getId());
+        Item dbItem = database.getItemByName(item.getName());
+
         ClientInterface buyerClient = getClientById(userIrd);
         ClientInterface sellerClient = getClientById(dbItem.getSeller());
 
