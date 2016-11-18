@@ -1,6 +1,7 @@
 package se.kth.networking.java.third.data;
 
 import se.kth.networking.java.third.model.Item;
+import se.kth.networking.java.third.model.Notification;
 import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
 
@@ -13,6 +14,9 @@ import java.util.List;
 public interface IRepository {
     void saveItem(int userid, Item item);
     void saveWish(int userid, Wish wish);
+    void saveNotification(Notification notification);
+    List<Notification> getUserNotifications(int userId);
+
     List<Item> getAllItems();
     Item getItemById(int id);
     Item getItemByName(String name);
@@ -24,4 +28,7 @@ public interface IRepository {
     User getUserByUsername(String username);
     User login(String username, String password) throws LoginException;
     User register(String username, String password);
+
+
+
 }

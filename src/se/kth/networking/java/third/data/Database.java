@@ -1,9 +1,6 @@
 package se.kth.networking.java.third.data;
 
-import se.kth.networking.java.third.model.ConcreterUser;
-import se.kth.networking.java.third.model.Item;
-import se.kth.networking.java.third.model.User;
-import se.kth.networking.java.third.model.Wish;
+import se.kth.networking.java.third.model.*;
 
 import javax.security.auth.login.LoginException;
 import java.math.BigInteger;
@@ -154,6 +151,46 @@ public class Database implements IRepository {
         }finally {
             safeCloseConnection();
         }
+    }
+
+    @Override
+    public void saveNotification(Notification notification) {
+        try {
+            PreparedStatement prepared = getPreparedStatement("insert into notifications (text, user) VALUES (?, ?)");
+            prepared.setString(1, notification.getText());
+            prepared.setFloat(2, notification.getUserId());
+            prepared.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+    }
+
+    @Override
+    public List<Notification> getUserNotifications(int userId) {
+        List<Notification> notifications = new ArrayList<>();
+
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from notifications where user like ?");
+            prepared.setInt(1, userId);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+                //id, text, user
+                //(int id, String text, int userId)
+
+                notifications.add(new Notification(rs.getInt(1), rs.getString(2), rs.getInt(3)));
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return notifications;
     }
 
     @Override

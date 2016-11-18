@@ -6,10 +6,7 @@ import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.ClientInterface;
 import se.kth.networking.java.third.data.Database;
 import se.kth.networking.java.third.data.IRepository;
-import se.kth.networking.java.third.model.Item;
-import se.kth.networking.java.third.model.StoreItem;
-import se.kth.networking.java.third.model.User;
-import se.kth.networking.java.third.model.Wish;
+import se.kth.networking.java.third.model.*;
 
 import javax.security.auth.login.LoginException;
 import java.net.MalformedURLException;
@@ -154,11 +151,18 @@ public class Marketplace implements MarketplaceInterface {
 
         for (int i = 0; i < wishes.size(); i++){
             Wish wish = wishes.get(i);
-            if (item.getPrice() <= wish.getPrice()) {
+            if (item.getPrice() <= wish.getPrice() && wish.getName().equalsIgnoreCase(item.getName())) {
 
-                //We have a wisher!
-                getClientById(wish.getWisher()).print("An object that is in your " +
-                        "wishlist is being sold A " + item.getName() + " for " + item.getPrice());
+                ClientInterface wisher = getClientById(wish.getWisher());
+
+                String message = "An object that is in your " + "wishlist is being sold A " + item.getName() + " for " + item.getPrice();
+
+                if(wisher == null){
+                    database.saveNotification(new Notification(message, wish.getWisher()));
+                }else{
+                    //We have a wisher!
+                    getClientById(wish.getWisher()).print(message);
+                }
             }
         }
 
@@ -192,6 +196,10 @@ public class Marketplace implements MarketplaceInterface {
             String name = null;
             try {
                 currClient = clients.get(user.getUsername());
+                if(currClient == null){
+                    return null;
+                }
+
                 name = currClient.getClientname();
 
             } catch (RemoteException e) {
@@ -248,9 +256,15 @@ public class Marketplace implements MarketplaceInterface {
                 //save to db
                 database.updateItem(dbItem);
 
-                sellerClient.sellCallback(dbItem);
-                sellerClient.print(dbItem.getName() +
-                        " was bought, you earned " + dbItem.getPrice());
+                String notificationText = dbItem.getName() + " was bought, you earned " + dbItem.getPrice();
+                if(sellerClient != null){
+                    sellerClient.sellCallback(dbItem);
+                    sellerClient.print(notificationText);
+                }else{
+
+                    //The user is not active at the moment, so save the notificaiton in the db
+                    database.saveNotification(new Notification(notificationText, dbItem.getSeller()));
+                }
                 removeFulfilledWishes(buyerClient.getClientname(), dbItem);
 
 
