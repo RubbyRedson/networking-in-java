@@ -189,6 +189,8 @@ public class Application extends javafx.application.Application {
             }
             try {
                 client.execute(command);
+                firstTextField.setText("");
+                secondTextField.setText("");
                 if (command.getCommandName() == Client.CommandName.login) {
                     commands = fullList(commands);
                 } else if (command.getCommandName() == Client.CommandName.logout || command.getCommandName() == Client.CommandName.unregister) {
