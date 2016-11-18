@@ -1,6 +1,7 @@
 package se.kth.networking.java.third.business;
 
 
+import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.ClientInterface;
 import se.kth.networking.java.third.data.Database;
 import se.kth.networking.java.third.data.IRepository;
@@ -160,13 +161,33 @@ public class Marketplace implements MarketplaceInterface {
 
     }
 
+    private ClientInterface getClientById(int userId){
+        ClientInterface client = null;
+        User user = database.getUserById(userId);
+
+        for(int i = 0; i < clients.size(); i++){
+            try {
+                if(clients.get(i).getClientname().equals(user.getUsername())){
+                    client = clients.get(i);
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return client;
+    }
+
     @Override
     public synchronized void wishItem(int userId, Wish wish) throws RemoteException {
         wishes.add(wish);
         System.out.println("Wish added: " + wish.print());
         for (Item item : store) {
             if (item.getPrice() <= wish.getPrice()) {
-                wish.getWisher().print("An object that is in your " +
+
+                ClientInterface client = getClientById(userId);
+
+                client.print("An object that is in your " +
                         "wishlist is being sold! A " + item.getName() + " for " + item.getPrice());
             }
         }
@@ -174,10 +195,21 @@ public class Marketplace implements MarketplaceInterface {
 
     @Override
     public synchronized boolean buyItem(int userIrd, Item item) throws RemoteException {
+
+        User buyer = database.getUserById(userIrd);
+        if(!clients.containsKey(buyer.getUsername())){
+            throw new RemoteException("No such client registered!\n" + buyer);
+        }
+
+        Item dbItem = database.getItemById(item.getId());
+
+
+
         /*
         if (!clients.containsKey(buyer))
             throw new RemoteException("No such client registered!\n" + buyer);
         ClientInterface buyerClient = clients.get(buyer);
+
         for (int i = 0; i < store.size(); i++) {
             if (store.get(i).getName().equalsIgnoreCase(item.getName())) {
                 item = store.get(i);
@@ -208,7 +240,10 @@ public class Marketplace implements MarketplaceInterface {
     private void removeFulfilledWishes(String client, Item purchase) throws RemoteException {
         List<Wish> newWishes = new ArrayList<>();
         for (Wish wish : wishes) {
-            if (!wish.getWisher().getClientname().equals(client) || !wish.getName().equalsIgnoreCase(purchase.getName())) {
+
+            ClientInterface wisher = getClientById(wish.getWisher());
+
+            if (!wisher.getClientname().equals(client) || !wish.getName().equalsIgnoreCase(purchase.getName())) {
                 newWishes.add(wish);
             }
         }
@@ -220,18 +255,6 @@ public class Marketplace implements MarketplaceInterface {
         List<StoreItem> storeItems = new ArrayList<>();
         storeItems.addAll(database.getAllItems());
         storeItems.addAll(database.getAllWishes());
-
-        /*
-        List<StoreItem> storeItems = new ArrayList<>();
-
-        for (int i = 0; i < wishes.size(); i++) {
-            storeItems.add(wishes.get(i));
-        }
-
-        for (int i = 0; i < store.size(); i++) {
-            storeItems.add(store.get(i));
-        }
-        */
 
         return storeItems;
     }

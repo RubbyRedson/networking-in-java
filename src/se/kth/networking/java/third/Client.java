@@ -227,7 +227,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                     marketplaceobj.sellItem(getId(), item);
                     return;
                 case wish:
-                    Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this);
+                    Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this.getId());
                     marketplaceobj.wishItem(getId(), wish);
 
                     return;

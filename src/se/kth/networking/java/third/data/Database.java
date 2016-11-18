@@ -211,6 +211,55 @@ public class Database implements IRepository{
     }
 
     @Override
+    public Item getItemById(int id) {
+        Item item = null;
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from items where id = ?");
+            prepared.setInt(1, id);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+                //int id, String name, float price, int seller, String currency
+                item = new Item(rs.getInt(1), rs.getString(2), rs.getFloat(3), rs.getInt(5), rs.getString(4));
+                item.setBuyer(rs.getInt(6));
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return item;
+    }
+
+    @Override
+    public Wish getWishById(int id) {
+        Wish wish = null;
+        try {
+            PreparedStatement prepared = getPreparedStatement("select * from wishes where id = ?");
+            prepared.setInt(1, id);
+            ResultSet rs = prepared.executeQuery();
+            while(rs.next()){
+
+                //int id, String name, float price, int wisher, String currency
+                wish = new Wish(rs.getInt(1), rs.getString(2), rs.getFloat(3), rs.getInt(4), rs.getString(5));
+
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return wish;
+    }
+
+    @Override
     public List<Wish> getAllWishes() {
         Statement stmt = getStatement();
         List<Wish> wishes = new ArrayList<>();

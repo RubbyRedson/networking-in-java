@@ -14,12 +14,18 @@ public class Wish implements Serializable, StoreItem {
     private float price;
     private String currency;
     private int wisher;
+    private int id;
 
     public Wish(String name, float price, int wisher){
         this(name, price, wisher, "SEK");
     }
 
     public Wish(String name, float price, int wisher, String currency){
+        this(-1, name, price, wisher, currency);
+    }
+
+    public Wish(int id, String name, float price, int wisher, String currency){
+        this.id = id;
         this.name = name;
         this.price = price;
         this.wisher = wisher;
