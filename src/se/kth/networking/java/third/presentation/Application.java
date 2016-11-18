@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
 import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.business.Command;
+import se.kth.networking.java.third.data.Database;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -24,7 +25,7 @@ import java.rmi.RemoteException;
  * Created by victoraxelsson on 2016-11-16.
  */
 public class Application extends javafx.application.Application {
-    private Client client = new Client();
+    private Client client;
     Label lbl;
     TextField firstTextField;
     TextField secondTextField;
@@ -33,6 +34,8 @@ public class Application extends javafx.application.Application {
     Client.CommandName commandName = Client.CommandName.register;
 
     public Application() throws RemoteException {
+        client = new Client();
+        client.setDatabase(new Database());
     }
 
     @Override
@@ -220,6 +223,11 @@ public class Application extends javafx.application.Application {
             String first = firstTextField.getText();
             switch (firstLabel.getText()) {
                 case "Username":
+                    if(first == null || first.trim().isEmpty() || first.trim().length() < 3){
+                        return firstLabel.getText() + " must be at least 3 chars long";
+                    }else{
+                        return null;
+                    }
                 case "Good Name":
                     if (first == null || first.trim().isEmpty()) return firstLabel.getText() + " can't be empty";
                 case "Amount":

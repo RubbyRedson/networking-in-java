@@ -38,6 +38,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     private String password;
     private IRepository database;
 
+
     public enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
         buy, sell, wish, register, unregister, inspect,                             //Marketplace commands
@@ -268,5 +269,9 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setDatabase(IRepository database) {
+        this.database = database;
     }
 }
