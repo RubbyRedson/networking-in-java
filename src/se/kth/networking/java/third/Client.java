@@ -203,7 +203,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         } else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
                 case register:
-                    marketplaceobj.registerClient(getUsername(), getPassword(), this);
+                    marketplaceobj.registerClient(command.getUsername(), command.getPassword(), this);
                     return;
                 case unregister:
                     marketplaceobj.unregisterClient(getId());
