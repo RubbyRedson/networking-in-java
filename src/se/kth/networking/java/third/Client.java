@@ -6,13 +6,11 @@ import se.kth.id2212.ex2.bankrmi.Bank;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
 import se.kth.networking.java.third.business.Command;
 import se.kth.networking.java.third.business.MarketplaceInterface;
-import se.kth.networking.java.third.data.IRepository;
 import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.StoreItem;
 import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
 
-import javax.security.auth.login.LoginException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -36,8 +34,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     private int id;
     private String username;
     private String password;
-    private IRepository database;
-
 
     public enum CommandName {
         newAccount, getAccount, deleteAccount, deposit, withdraw, balance, list,    //Banking commands
@@ -122,6 +118,16 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         }
     }
 
+    @Override
+    public void userLoginCallback(User user) throws RemoteException {
+        setId(user.getId());
+    }
+
+    @Override
+    public void userRegisterCallback(User user) throws RemoteException {
+        setId(user.getId());
+    }
+
     public void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
         switch (command.getCommandName()) {
             case list:
@@ -142,21 +148,15 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                 }
                 return;
             case login:
-                try {
-                    User user = database.login(command.getUsername(), command.getPassword());
-                    setId(user.getId());
-                    setUsername(user.getUsername());
-                    setPassword(user.getPassword());
+                    setUsername(command.getUsername());
+                    setPassword(command.getPassword());
+                    marketplaceobj.loginClient(command.getUsername(), command.getPassword(), this);
+                    break;
 
-                    marketplaceobj.registerClient(command.getUsername(), command.getPassword(), this);
-                } catch (LoginException e) {
-                    e.printStackTrace();
-                }
             case logout:
                 setId(-1);
                 setUsername(null);
                 setPassword(null);
-
         }
 
         // all further commands require a name to be specified
@@ -205,7 +205,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         } else if (CommandName.isMarketplaceCommand(command.getCommandName())) {
             switch (command.getCommandName()) {
                 case register:
-                    database.register(command.getUsername(), command.getPassword());
                     marketplaceobj.registerClient(command.getUsername(), command.getPassword(), this);
                     return;
                 case unregister:
@@ -274,7 +273,4 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         this.password = password;
     }
 
-    public void setDatabase(IRepository database) {
-        this.database = database;
-    }
 }

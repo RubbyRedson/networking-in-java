@@ -1,6 +1,7 @@
 package se.kth.networking.java.third;
 
 import se.kth.networking.java.third.model.Item;
+import se.kth.networking.java.third.model.User;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -12,4 +13,6 @@ public interface ClientInterface extends Remote {
 
     boolean buyCallback(Item item) throws RemoteException;
     void sellCallback(Item item) throws RemoteException;
+    void userLoginCallback(User user) throws RemoteException;
+    void userRegisterCallback(User user) throws RemoteException;
 }

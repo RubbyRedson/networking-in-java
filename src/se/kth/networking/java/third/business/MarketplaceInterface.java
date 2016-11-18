@@ -17,6 +17,7 @@ import java.util.List;
  */
 public interface MarketplaceInterface extends Remote {
     void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException;
+    void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException;
     void unregisterClient(int userId) throws RemoteException;
     void sellItem(int userId, Item item) throws RemoteException;
     boolean buyItem(int userId, Item item) throws RemoteException;

@@ -2,10 +2,14 @@ package se.kth.networking.java.third.business;
 
 
 import se.kth.networking.java.third.ClientInterface;
+import se.kth.networking.java.third.data.Database;
+import se.kth.networking.java.third.data.IRepository;
 import se.kth.networking.java.third.model.Item;
 import se.kth.networking.java.third.model.StoreItem;
+import se.kth.networking.java.third.model.User;
 import se.kth.networking.java.third.model.Wish;
 
+import javax.security.auth.login.LoginException;
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -25,11 +29,13 @@ public class Marketplace implements MarketplaceInterface {
     private HashMap<String, ClientInterface> clients;
     private List<Item> store;
     private List<Wish> wishes;
+    private IRepository database;
 
-    private Marketplace() {
+    private Marketplace(IRepository repo) {
         clients = new HashMap<>();
         store = new ArrayList<>();
         wishes = new ArrayList<>();
+        this.database = repo;
     }
 
     private static Registry lazyCreateRegistry(Marketplace server) {
@@ -59,14 +65,30 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     public static void main(String[] args) {
-        Marketplace server = new Marketplace();
+        Marketplace server = new Marketplace(new Database());
         Registry registry = lazyCreateRegistry(server);
     }
 
     @Override
     public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+
+        User user = database.register(userName, password);
+        client.userRegisterCallback(user);
+
         clients.put(userName, client);
         System.out.println("register in marketplace " + userName);
+    }
+
+    @Override
+    public void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+        User user = null;
+        try {
+            user = database.login(userName, password);
+        } catch (LoginException e) {
+            e.printStackTrace();
+        }
+
+        client.userLoginCallback(user);
     }
 
     @Override

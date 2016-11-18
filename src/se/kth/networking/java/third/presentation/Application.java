@@ -35,7 +35,6 @@ public class Application extends javafx.application.Application {
 
     public Application() throws RemoteException {
         client = new Client();
-        client.setDatabase(new Database());
     }
 
     @Override

@@ -237,10 +237,6 @@ public class Database implements IRepository{
         User user = getUserByUsername(username);
 
         if(user != null){
-
-            String hashed = doHash(password);
-
-
             if(user.getPassword().equals(doHash(password))){
                 return user;
             }else{
