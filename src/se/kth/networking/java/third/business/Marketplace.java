@@ -248,7 +248,7 @@ public class Marketplace implements MarketplaceInterface {
         if (dbItem.getBuyer() <= 0) {
             if (buyerClient != null && buyerClient.buyCallback(dbItem)) {
                 dbItem.setBuyer(buyer.getId());
-
+                buyerClient.print("You bought " + dbItem.getName() + " for " + dbItem.getPrice());
                 //save to db
                 database.updateItem(dbItem);
 
@@ -262,9 +262,7 @@ public class Marketplace implements MarketplaceInterface {
                     database.saveNotification(new Notification(notificationText, dbItem.getSeller()));
                 }
                 removeFulfilledWishes(buyerClient.getClientname(), dbItem);
-
-
-                System.out.println("Item was bought: " + item.print());
+                System.out.println("Item was bought: " + dbItem.print());
                 return true;
             } else {
                 throw new BusinessLogicException("Insufficient funds!");

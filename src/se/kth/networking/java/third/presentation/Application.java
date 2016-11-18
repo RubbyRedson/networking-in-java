@@ -297,8 +297,6 @@ public class Application extends javafx.application.Application {
     private ComboBox fullList(ComboBox comboBox) {
         comboBox.getItems().removeAll(comboBox.getItems());
         comboBox.getItems().addAll(
-                "Unregister",
-                "Logout",
                 "Deposit",
                 "Withdraw",
                 "Balance",
@@ -306,7 +304,8 @@ public class Application extends javafx.application.Application {
                 "Buy",
                 "Sell",
                 "Wish",
-                "Inspect"
+                "Inspect",
+                "Logout"
         );
         comboBox.setValue("Deposit");
         commandName = Client.CommandName.deposit;
