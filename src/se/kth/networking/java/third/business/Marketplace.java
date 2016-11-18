@@ -65,7 +65,7 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+    public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException, BusinessLogicException {
 
         User user = database.register(userName, password);
         client.userRegisterCallback(user);
