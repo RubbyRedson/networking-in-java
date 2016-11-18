@@ -236,7 +236,7 @@ public class Database implements IRepository {
             prepared.setString(3, item.getCurrency());
             prepared.setInt(4, item.getSeller());
             prepared.setInt(5, item.getBuyer());
-            prepared.setInt(3, item.getId());
+            prepared.setInt(6, item.getId());
             prepared.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -277,9 +277,8 @@ public class Database implements IRepository {
         try {
             PreparedStatement prepared = getPreparedStatement("delete * from wishes where wisher = ? and name like ?");
             prepared.setInt(1, userId);
-            prepared.setString(1, goodName);
-            ResultSet rs = prepared.executeQuery();
-            rs.close();
+            prepared.setString(2, goodName);
+            prepared.execute();
 
         } catch (SQLException e) {
             e.printStackTrace();
