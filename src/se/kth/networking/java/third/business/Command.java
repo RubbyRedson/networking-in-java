@@ -55,8 +55,10 @@ public class Command {
         return result;
     }
 
-    public static Command createRegisterCommand() {
+    public static Command createRegisterCommand(String username, String password) {
         Command result = new Command();
+        result.setUsername(username);
+        result.setPassword(password);
         result.setCommandName(Client.CommandName.register);
         return result;
     }
