@@ -52,7 +52,7 @@ public class Database implements IRepository {
     private Connection getConnection(){
         Connection connection = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName(JDBC_DRIVER).newInstance();
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -275,7 +275,7 @@ public class Database implements IRepository {
     @Override
     public void deleteWish(int userId, String goodName) {
         try {
-            PreparedStatement prepared = getPreparedStatement("delete * from wishes where wisher = ? and name like ?");
+            PreparedStatement prepared = getPreparedStatement("delete from wishes where wisher = ? and name like ?");
             prepared.setInt(1, userId);
             prepared.setString(2, goodName);
             prepared.execute();
