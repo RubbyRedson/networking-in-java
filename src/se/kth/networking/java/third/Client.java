@@ -157,10 +157,10 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         }
 
         // all further commands require a name to be specified
-        String userName = getUsername();
+        String userName = command.getUsername();
 
         if (userName == null) {
-            System.out.println("name is not specified");
+            username = getUsername();
             return;
         }
 
