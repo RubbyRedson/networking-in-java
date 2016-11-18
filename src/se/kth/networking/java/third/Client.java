@@ -133,6 +133,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     }
 
     public void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException, BusinessLogicException {
+        print("Execute " + command.getCommandName() + " command");
         switch (command.getCommandName()) {
             case list:
                 try {
@@ -152,16 +153,18 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                 }
                 return;
             case login:
-                    setUsername(command.getUsername());
-                    setPassword(command.getPassword());
-                    marketplaceobj.loginClient(command.getUsername(), command.getPassword(), this);
-                    bankobj.newAccount(command.getUsername());
-                    break;
+                setUsername(command.getUsername());
+                setPassword(command.getPassword());
+                marketplaceobj.loginClient(command.getUsername(), command.getPassword(), this);
+                if (bankobj.getAccount(getUsername()) == null) bankobj.newAccount(command.getUsername());
+                else account = bankobj.getAccount(getUsername());
+                break;
 
             case logout:
                 setId(-1);
                 setUsername(null);
                 setPassword(null);
+                account = null;
         }
 
         // all further commands require a name to be specified
@@ -213,6 +216,9 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                     return;
                 case unregister:
                     marketplaceobj.unregisterClient(getId());
+                    setId(-1);
+                    setUsername(null);
+                    setPassword(null);
                     return;
 
                 //these would require the client to be registered
@@ -233,7 +239,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                 case wish:
                     Wish wish = new Wish(command.getGoodName(), command.getGoodValue(), this.getId());
                     marketplaceobj.wishItem(getId(), wish);
-
                     return;
             }
         }
