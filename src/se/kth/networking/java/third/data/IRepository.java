@@ -16,6 +16,7 @@ public interface IRepository {
     void saveWish(int userid, Wish wish);
     void saveNotification(Notification notification);
     List<Notification> getUserNotifications(int userId);
+    void deleteUserNotifications(int userId);
 
     List<Item> getAllItems();
     Item getItemById(int id);

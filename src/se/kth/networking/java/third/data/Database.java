@@ -194,6 +194,20 @@ public class Database implements IRepository {
     }
 
     @Override
+    public void deleteUserNotifications(int userId) {
+        try {
+            PreparedStatement prepared = getPreparedStatement("delete from notifications where user = ?");
+            prepared.setInt(1, userId);
+            prepared.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+    }
+
+    @Override
     public List<Item> getAllItems() {
         Statement stmt = getStatement();
         List<Item> items = new ArrayList<>();

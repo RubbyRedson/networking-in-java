@@ -1,6 +1,7 @@
 package se.kth.networking.java.third.business;
 
 
+import com.sun.tools.corba.se.idl.constExpr.Not;
 import se.kth.networking.java.third.BusinessLogicException;
 import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.ClientInterface;
@@ -79,6 +80,17 @@ public class Marketplace implements MarketplaceInterface {
         User user = null;
         try {
             user = database.login(userName, password);
+
+            List<Notification> notifications = database.getUserNotifications(user.getId());
+
+            for(int i = 0; i < notifications.size(); i++){
+                client.print(notifications.get(i).getText());
+            }
+
+            database.deleteUserNotifications(user.getId());
+
+
+
         } catch (LoginException e) {
             e.printStackTrace();
         }
