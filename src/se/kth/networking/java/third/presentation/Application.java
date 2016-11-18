@@ -160,7 +160,7 @@ public class Application extends javafx.application.Application {
             Command command = null;
             switch (commandName) {
                 case register:
-                    command = Command.createRegisterCommand();
+                    command = Command.createRegisterCommand(firstTextField.getText(), secondTextField.getText());
                     break;
                 case unregister:
                     command = Command.createUnregisterCommand();
