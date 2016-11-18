@@ -125,6 +125,8 @@ public class Application extends javafx.application.Application {
                     case "Wish":
                         commandName = Client.CommandName.wish;
                         twoVisible();
+                        firstLabel.setText("Good Name");
+                        secondLabel.setText("Price");
                         break;
                     case "Sell":
                         commandName = Client.CommandName.sell;
@@ -230,6 +232,7 @@ public class Application extends javafx.application.Application {
                     }
                 case "Good Name":
                     if (first == null || first.trim().isEmpty()) return firstLabel.getText() + " can't be empty";
+                    break;
                 case "Amount":
                     if (first == null || first.trim().isEmpty()) return firstLabel.getText() + " can't be empty";
                     try {
@@ -248,6 +251,7 @@ public class Application extends javafx.application.Application {
                 case "Password":
                     if (second == null || second.trim().isEmpty()) return secondLabel.getText() + " can't be empty";
                     if (second.length() < 8) return secondLabel.getText() + " must contain at least 8 characters";
+                    break;
                 case "Price":
                     if (second == null || second.trim().isEmpty()) return secondLabel.getText() + " can't be empty";
                     try {
@@ -257,6 +261,7 @@ public class Application extends javafx.application.Application {
                     catch (NumberFormatException exc) {
                         return secondLabel.getText() + " must contain a number";
                     }
+                    break;
             }
         }
 
