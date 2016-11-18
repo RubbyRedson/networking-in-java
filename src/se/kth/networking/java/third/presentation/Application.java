@@ -119,7 +119,7 @@ public class Application extends javafx.application.Application {
                         noneVisible();
                         break;
                     case "Unregister":
-                        commandName = Client.CommandName.inspect;
+                        commandName = Client.CommandName.unregister;
                         noneVisible();
                         break;
                     case "Wish":
