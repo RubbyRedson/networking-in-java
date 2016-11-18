@@ -197,12 +197,37 @@ public class Marketplace implements MarketplaceInterface {
     public synchronized boolean buyItem(int userIrd, Item item) throws RemoteException {
 
         User buyer = database.getUserById(userIrd);
+
+
         if(!clients.containsKey(buyer.getUsername())){
             throw new RemoteException("No such client registered!\n" + buyer);
         }
 
         Item dbItem = database.getItemById(item.getId());
+        ClientInterface buyerClient = getClientById(userIrd);
+        ClientInterface sellerClient = getClientById(dbItem.getSeller());
 
+
+        if (dbItem.getBuyer() <= 0) {
+            if (buyerClient != null && buyerClient.buyCallback(item)) {
+                dbItem.setBuyer(buyer.getId());
+
+                //save to db
+                database.updateItem(dbItem);
+
+                sellerClient.sellCallback(dbItem);
+                sellerClient.print(dbItem.getName() +
+                        " was bought, you earned " + dbItem.getPrice());
+                removeFulfilledWishes(buyerClient.getClientname(), dbItem);
+
+
+                System.out.println("Item was bought: " + item.print());
+                return true;
+            } else {
+                buyerClient.print("Insufficient funds");
+                return false;
+            }
+        }
 
 
         /*
@@ -238,6 +263,11 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     private void removeFulfilledWishes(String client, Item purchase) throws RemoteException {
+
+
+
+        System.out.println("NOt implemented");
+
         List<Wish> newWishes = new ArrayList<>();
         for (Wish wish : wishes) {
 

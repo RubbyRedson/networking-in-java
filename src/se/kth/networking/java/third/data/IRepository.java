@@ -16,7 +16,9 @@ public interface IRepository {
     void saveWish(int userid, Wish wish);
     List<Item> getAllItems();
     Item getItemById(int id);
+    Item updateItem(Item item);
     Wish getWishById(int id);
+    void deleteWishById(int id);
     List<Wish> getAllWishes();
     User getUserById(int id);
     User login(String username, String password) throws LoginException;

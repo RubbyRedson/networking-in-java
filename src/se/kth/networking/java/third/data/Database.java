@@ -122,7 +122,7 @@ public class Database implements IRepository{
     }
 
     private User fillUser(int _id, String _username, String _password){
-        return new User() {
+        return new User(){
 
             private int id = _id;
             private String username = _username;
@@ -235,6 +235,26 @@ public class Database implements IRepository{
     }
 
     @Override
+    public Item updateItem(Item item) {
+        try {
+            PreparedStatement prepared = getPreparedStatement("UPDATE items SET name=?, price=?, currency=?, seller=?, buyer=? where id=?");
+            prepared.setString(1, item.getName());
+            prepared.setFloat(2, item.getPrice());
+            prepared.setString(3, item.getCurrency());
+            prepared.setInt(4, item.getSeller());
+            prepared.setInt(5, item.getBuyer());
+            prepared.setInt(3, item.getId());
+            prepared.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return item;
+    }
+
+    @Override
     public Wish getWishById(int id) {
         Wish wish = null;
         try {
@@ -257,6 +277,21 @@ public class Database implements IRepository{
         }
 
         return wish;
+    }
+
+    @Override
+    public void deleteWishById(int id) {
+        try {
+            PreparedStatement prepared = getPreparedStatement("delete * from wishes where id = ?");
+            prepared.setInt(1, id);
+            ResultSet rs = prepared.executeQuery();
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
     }
 
     @Override
