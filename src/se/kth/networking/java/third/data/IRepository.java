@@ -17,9 +17,10 @@ public interface IRepository {
     Item getItemById(int id);
     Item updateItem(Item item);
     Wish getWishById(int id);
-    void deleteWishById(int id);
+    void deleteWish(int userId, String goodName);
     List<Wish> getAllWishes();
     User getUserById(int id);
+    User getUserByUsername(String username);
     User login(String username, String password) throws LoginException;
     User register(String username, String password);
 }
