@@ -264,8 +264,10 @@ public class Marketplace implements MarketplaceInterface {
 
     private void removeFulfilledWishes(String client, Item purchase) throws RemoteException {
 
+        User user = database.getUserByUsername(client);
+        database.deleteWish(user.getId(), purchase.getName());
 
-
+        /*
         System.out.println("NOt implemented");
 
         List<Wish> newWishes = new ArrayList<>();
@@ -278,6 +280,7 @@ public class Marketplace implements MarketplaceInterface {
             }
         }
         wishes = newWishes;
+        */
     }
 
     @Override

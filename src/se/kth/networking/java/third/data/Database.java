@@ -100,7 +100,7 @@ public class Database implements IRepository{
         }
     }
 
-    private User getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         User user = null;
         try {
             PreparedStatement prepared = getPreparedStatement("select * from users where username = ?");
@@ -280,10 +280,11 @@ public class Database implements IRepository{
     }
 
     @Override
-    public void deleteWishById(int id) {
+    public void deleteWish(int userId, String goodName) {
         try {
-            PreparedStatement prepared = getPreparedStatement("delete * from wishes where id = ?");
-            prepared.setInt(1, id);
+            PreparedStatement prepared = getPreparedStatement("delete * from wishes where wisher = ? and name like ?");
+            prepared.setInt(1, userId);
+            prepared.setString(1, goodName);
             ResultSet rs = prepared.executeQuery();
             rs.close();
 
