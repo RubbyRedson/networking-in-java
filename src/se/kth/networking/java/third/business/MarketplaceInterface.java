@@ -1,5 +1,6 @@
 package se.kth.networking.java.third.business;
 
+import se.kth.networking.java.third.BusinessLogicException;
 import se.kth.networking.java.third.ClientInterface;
 import se.kth.networking.java.third.model.Item;
 
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public interface MarketplaceInterface extends Remote {
     void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException;
-    void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException;
+    void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException, BusinessLogicException;
     void unregisterClient(int userId) throws RemoteException;
     void sellItem(int userId, Item item) throws RemoteException;
     boolean buyItem(int userId, Item item) throws RemoteException;

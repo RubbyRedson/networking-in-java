@@ -13,6 +13,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import se.kth.id2212.ex2.bankrmi.RejectedException;
+import se.kth.networking.java.third.BusinessLogicException;
 import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.business.Command;
 
@@ -193,16 +194,8 @@ public class Application extends javafx.application.Application {
                 } else if (command.getCommandName() == Client.CommandName.logout || command.getCommandName() == Client.CommandName.unregister) {
                     commands = notLoggedIn(commands);
                 }
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            } catch (RejectedException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (NotBoundException e) {
-                e.printStackTrace();
             } catch (Exception e) {
-                e.printStackTrace();
+                println(e.getMessage());
             }
             //do stuff
         });

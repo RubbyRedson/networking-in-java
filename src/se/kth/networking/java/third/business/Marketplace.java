@@ -1,6 +1,7 @@
 package se.kth.networking.java.third.business;
 
 
+import se.kth.networking.java.third.BusinessLogicException;
 import se.kth.networking.java.third.Client;
 import se.kth.networking.java.third.ClientInterface;
 import se.kth.networking.java.third.data.Database;
@@ -81,7 +82,7 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+    public void loginClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException, BusinessLogicException {
         User user = null;
         try {
             user = database.login(userName, password);

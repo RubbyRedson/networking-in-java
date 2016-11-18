@@ -18,6 +18,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -121,7 +122,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     }
 
     @Override
-    public void userLoginCallback(User user) throws RemoteException {
+    public void userLoginCallback(User user) throws RemoteException, BusinessLogicException {
+        if (user == null) throw new BusinessLogicException("Login failed!");
         setId(user.getId());
     }
 
@@ -130,8 +132,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
         setId(user.getId());
     }
 
-    public void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException {
-        app.println("execute");
+    public void execute(Command command) throws RemoteException, RejectedException, MalformedURLException, NotBoundException, BusinessLogicException {
         switch (command.getCommandName()) {
             case list:
                 try {
@@ -139,7 +140,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
                         this.print(accountHolder);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    this.print("An error occurred: " + e.getMessage());
                     return;
                 }
                 return;
