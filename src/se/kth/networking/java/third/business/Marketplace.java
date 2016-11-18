@@ -134,11 +134,11 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized void sellItem(int userId, Item item) throws RemoteException {
+    public synchronized void sellItem(int userId, Item item) throws RemoteException, BusinessLogicException {
 
         User user = database.getUserById(userId);
         if(!clients.containsKey(user.getUsername())){
-            throw new RemoteException("No such client registered!\n" + user.getUsername());
+            throw new BusinessLogicException("No such client registered!\n" + user.getUsername());
         }
 
         database.saveItem(userId, item);
@@ -246,7 +246,7 @@ public class Marketplace implements MarketplaceInterface {
 
 
         if (dbItem.getBuyer() <= 0) {
-            if (buyerClient != null && buyerClient.buyCallback(item)) {
+            if (buyerClient != null && buyerClient.buyCallback(dbItem)) {
                 dbItem.setBuyer(buyer.getId());
 
                 //save to db
