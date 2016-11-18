@@ -211,6 +211,27 @@ public class Database implements IRepository{
     }
 
     @Override
+    public List<Wish> getAllWishes() {
+        Statement stmt = getStatement();
+        List<Wish> wishes = new ArrayList<>();
+        try {
+            ResultSet rs = stmt.executeQuery("select * from wishes");
+
+            while(rs.next()){
+                wishes.add(new Wish(rs.getString(1), rs.getFloat(2), rs.getInt(3)));
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            safeCloseConnection();
+        }
+
+        return wishes;
+    }
+
+    @Override
     public User getUserById(int id) {
         User user = null;
         try {

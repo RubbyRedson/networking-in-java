@@ -13,13 +13,13 @@ public class Wish implements Serializable, StoreItem {
     private String name;
     private float price;
     private String currency;
-    private ClientInterface wisher;
+    private int wisher;
 
-    public Wish(String name, float price, ClientInterface wisher){
+    public Wish(String name, float price, int wisher){
         this(name, price, wisher, "SEK");
     }
 
-    public Wish(String name, float price, ClientInterface wisher, String currency){
+    public Wish(String name, float price, int wisher, String currency){
         this.name = name;
         this.price = price;
         this.wisher = wisher;
@@ -29,12 +29,12 @@ public class Wish implements Serializable, StoreItem {
     @Override
     public String print() throws RemoteException {
         String msg = "";
-        msg += wisher.getClientname() + " is wishing for the item: " + name + ", with a max price " + price + " " + currency;
+        msg += wisher + " is wishing for the item: " + name + ", with a max price " + price + " " + currency;
 
         return msg;
     }
 
-    public ClientInterface getWisher() {
+    public int getWisher() {
         return wisher;
     }
 

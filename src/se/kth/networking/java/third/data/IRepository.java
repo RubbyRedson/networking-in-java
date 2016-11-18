@@ -15,6 +15,7 @@ public interface IRepository {
     void saveItem(int userid, Item item);
     void saveWish(int userid, Wish wish);
     List<Item> getAllItems();
+    List<Wish> getAllWishes();
     User getUserById(int id);
     User login(String username, String password) throws LoginException;
     User register(String username, String password);

@@ -217,7 +217,11 @@ public class Marketplace implements MarketplaceInterface {
 
     @Override
     public synchronized List<StoreItem> listItems() {
+        List<StoreItem> storeItems = new ArrayList<>();
+        storeItems.addAll(database.getAllItems());
+        storeItems.addAll(database.getAllWishes());
 
+        /*
         List<StoreItem> storeItems = new ArrayList<>();
 
         for (int i = 0; i < wishes.size(); i++) {
@@ -227,6 +231,7 @@ public class Marketplace implements MarketplaceInterface {
         for (int i = 0; i < store.size(); i++) {
             storeItems.add(store.get(i));
         }
+        */
 
         return storeItems;
     }
