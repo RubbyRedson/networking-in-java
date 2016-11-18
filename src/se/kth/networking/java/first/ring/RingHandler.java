@@ -1,6 +1,7 @@
 package se.kth.networking.java.first.ring;
 
 
+import se.kth.networking.java.first.ApplicationDomain;
 import se.kth.networking.java.first.Helper;
 import se.kth.networking.java.first.models.Node;
 import se.kth.networking.java.first.models.OnResponse;
@@ -21,12 +22,14 @@ public class RingHandler {
     Node self;
     private int port;
     private String ip;
+    ApplicationDomain app;
 
-    public RingHandler(String ip, int port){
+    public RingHandler(String ip, int port, ApplicationDomain app){
         this.ip = ip;
         this.port = port;
         this.self = new Node(ip, port);
         this.successor = this.self;
+        this.app = app;
 
         TimerTask task = new TimerTask() {
             @Override
@@ -172,6 +175,21 @@ public class RingHandler {
                 return "accept";
             }else{
                 return "deny";
+            }
+        }
+    }
+
+    public void addKey(int key, String value){
+        if(between(key, predecessor.getId(), self.getId())){
+            app.storeKey(key, value);
+        }else{
+            String msg = "add:" + self.getIp() + "," + self.getPort() + "," + key + "," + value;
+            Client c = null;
+            try {
+                c = new Client(successor.getAsSocket(), msg, null);
+                c.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -6,6 +6,7 @@ import se.kth.networking.java.first.network.ClientAcceptor;
 import se.kth.networking.java.first.ring.RingHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by Nick on 11/2/2016.
@@ -14,12 +15,14 @@ public class Server {
 
     private RingHandler ringHandler;
     private ClientAcceptor acceptor;
+    private ApplicationDomain app;
 
 
-    public Server(int port) {
+    public Server(ApplicationDomain app, int port) {
+        this.app = app;
 
         //Please fix dynamic ip
-        ringHandler = new RingHandler("127.0.0.1", port);
+        ringHandler = new RingHandler("127.0.0.1", port, app);
 
         try {
             acceptor = new ClientAcceptor(port, new OnResponse<String>(){
@@ -53,10 +56,21 @@ public class Server {
                 case "request":
                     response = ringHandler.onRequest(clientMessage, node);
                     break;
+                case "add":
+                    String[] args = parts[1].split(",");
+                    int key = Integer.parseInt(args[2]);
+                    String[] newArgs = Arrays.copyOfRange(args, 3, args.length);
+                    String tmp = String.join(",", newArgs);
+                    ringHandler.addKey(key, tmp);
+                    break;
             }
         }
 
         return response;
+    }
+
+    public void addKey(int key, String value){
+        ringHandler.addKey(key, value);
     }
 
     public void sendNotify(String ip, int port){
@@ -70,15 +84,22 @@ public class Server {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.valueOf(args[0]);
 
-        Server server1 = new Server(5050);
+        ApplicationDomain app = new ApplicationDomain() {
+            @Override
+            public void storeKey(int key, String value) {
+                System.out.println(key + ":" + value);
+            }
+        };
+
+        Server server1 = new Server(app, 5050);
         server1.start();
 
-        Server server2 = new Server(6060);
+        Server server2 = new Server(app, 6060);
         server2.start();
 
         Thread.sleep(3000);
 
-        Server server3 = new Server(7070);
+        Server server3 = new Server(app, 7070);
         server3.start();
 
         //server1.sendNotify(server2.getRingHandler().getIp(), server2.getRingHandler().getPort());
@@ -87,7 +108,7 @@ public class Server {
         server3.sendNotify(server1.getRingHandler().getIp(), server1.getRingHandler().getPort());
         Thread.sleep(3000);
 
-        server1.probe();
+        server2.addKey(22, "gravy");
         System.out.println("done");
     }
 

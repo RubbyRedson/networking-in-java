@@ -39,11 +39,22 @@ dependencies {
 }
 
 sourceSets{
-    main.java.srcDir "src"
-    test.java.srcDir "test"
+    main.java.srcDir 'src'
+    test.java.srcDir 'test'
 }
 
 jar{
     from configurations.myConfig.collect{ zipTree it}
-   manifest.attributes "Main-Class": "se.kth.networking.java.first.Server"
+    manifest.attributes "Main-Class": "se.kth.networking.java.first.Server"
+}
+
+task run(type: JavaExec, dependsOn: classes){
+    main 'se.kth.networking.java.first.Server'
+    classpath sourceSets.main.runtimeClasspath
+    args '8080'
+}
+
+task runJar(type: Exec, dependsOn: jar){
+    executable 'java'
+    args '-jar', "$jar.archivePath", '8080'
 }
