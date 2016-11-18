@@ -66,7 +66,7 @@ public class Marketplace implements MarketplaceInterface {
     }
 
     @Override
-    public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException {
+    public synchronized void registerClient(String userName, String password, ClientInterface client) throws RemoteException, NotBoundException, MalformedURLException, BusinessLogicException {
 
         User user = database.register(userName, password);
         client.userRegisterCallback(user);
@@ -260,7 +260,7 @@ public class Marketplace implements MarketplaceInterface {
         if (dbItem.getBuyer() <= 0) {
             if (buyerClient != null && buyerClient.buyCallback(dbItem)) {
                 dbItem.setBuyer(buyer.getId());
-
+                buyerClient.print("You bought " + dbItem.getName() + " for " + dbItem.getPrice());
                 //save to db
                 database.updateItem(dbItem);
 
@@ -274,9 +274,7 @@ public class Marketplace implements MarketplaceInterface {
                     database.saveNotification(new Notification(notificationText, dbItem.getSeller()));
                 }
                 removeFulfilledWishes(buyerClient.getClientname(), dbItem);
-
-
-                System.out.println("Item was bought: " + item.print());
+                System.out.println("Item was bought: " + dbItem.print());
                 return true;
             } else {
                 throw new BusinessLogicException("Insufficient funds!");

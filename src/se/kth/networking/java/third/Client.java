@@ -128,7 +128,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface, User
     }
 
     @Override
-    public void userRegisterCallback(User user) throws RemoteException {
+    public void userRegisterCallback(User user) throws RemoteException, BusinessLogicException {
+        if (user == null) throw new BusinessLogicException("Registration failed! Please provide a different username/password pair.");
         setId(user.getId());
     }
 

@@ -14,5 +14,5 @@ public interface ClientInterface extends Remote {
     boolean buyCallback(Item item) throws RemoteException;
     void sellCallback(Item item) throws RemoteException;
     void userLoginCallback(User user) throws RemoteException, BusinessLogicException;
-    void userRegisterCallback(User user) throws RemoteException;
+    void userRegisterCallback(User user) throws RemoteException, BusinessLogicException;
 }
