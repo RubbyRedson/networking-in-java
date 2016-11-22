@@ -9,6 +9,7 @@ import se.kth.networking.java.first.network.Client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -194,6 +195,44 @@ public class RingHandler {
         }
     }
 
+    public void lookup(int key, Node asker){
+        if(between(key, predecessor.getId(), self.getId())){
+            //do the lookup on this node
+            String value = app.getKey(key);
+            String msg = "lookup_response:" + self.getIp() + "," + self.getPort() + "," + key + "," + value;
+            Client c = null;
+            try {
+                c = new Client(successor.getAsSocket(), msg, null);
+                c.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }else{
+            String msg = "lookup:" + self.getIp() + "," + self.getPort() + "," + key + "," + asker.toString();
+            Client c = null;
+            try {
+                c = new Client(successor.getAsSocket(), msg, null);
+                c.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void lookup(String message){
+        //Example of a message:
+        //lookup:127.0.0.1,6060,55,{"port":6060,"ip":"127.0.0.1","id":-1109658127}
+
+        String argsPart = message.substring("lookup:".length());
+        String[] args = argsPart.split(",");
+        int key = Integer.parseInt(args[2]);
+        String[] jsonParts = Arrays.copyOfRange(args, 3, args.length);
+        Node initiator = new Node(String.join(",", jsonParts));
+
+        lookup(key, initiator);
+    }
+
     private boolean between(int key, int from, int to){
         if(from < to){
             return (key > from) && (key <= to);
@@ -210,5 +249,24 @@ public class RingHandler {
 
     public String getIp() {
         return ip;
+    }
+
+    public Node getSelf() {
+        return self;
+    }
+
+    public void deliverLookup(String clientMessage) {
+        //lookup_response:127.0.0.1,5050,55,["SomeData"],{"port":5050,"ip":"127.0.0.1","id":-1109687949}
+
+        String argsPart = clientMessage.substring("lookup_response:".length());
+        String[] args = argsPart.split(",");
+        int key = Integer.parseInt(args[2]);
+        String[] jsonParts = Arrays.copyOfRange(args, 3, args.length);
+        String data = String.join(",", jsonParts);
+
+        //Node keyKeeper = new Node(args[0], Integer.parseInt(args[1]));
+
+        app.foundKey(key, data);
+
     }
 }

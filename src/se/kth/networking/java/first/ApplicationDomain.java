@@ -5,4 +5,6 @@ package se.kth.networking.java.first;
  */
 public interface ApplicationDomain {
     void storeKey(int key, String value);
+    String getKey(int key);
+    void foundKey(int key, String value);
 }

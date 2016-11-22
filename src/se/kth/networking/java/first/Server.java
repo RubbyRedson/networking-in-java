@@ -56,6 +56,12 @@ public class Server {
                 case "request":
                     response = ringHandler.onRequest(clientMessage, node);
                     break;
+                case "lookup":
+                    ringHandler.lookup(clientMessage);
+                    break;
+                case "lookup_response":
+                    ringHandler.deliverLookup(clientMessage);
+                    break;
                 case "add":
                     String[] args = parts[1].split(",");
                     int key = Integer.parseInt(args[2]);
@@ -73,6 +79,10 @@ public class Server {
         ringHandler.addKey(key, value);
     }
 
+    public void lookup(int key){
+        ringHandler.lookup(key, ringHandler.getSelf());
+    }
+
     public void sendNotify(String ip, int port){
         ringHandler.sendNotify(ip, port);
     }
@@ -88,6 +98,16 @@ public class Server {
             @Override
             public void storeKey(int key, String value) {
                 System.out.println(key + ":" + value);
+            }
+
+            @Override
+            public String getKey(int key) {
+                return "[\"SomeData\"]";
+            }
+
+            @Override
+            public void foundKey(int key, String value) {
+                System.out.println("Key:" + key + ", Value: " + value);
             }
         };
 
@@ -109,6 +129,12 @@ public class Server {
         Thread.sleep(3000);
 
         server2.addKey(22, "gravy");
+        server2.addKey(55, "stuff");
+
+        Thread.sleep(3000);
+
+        server2.lookup(55);
+
         System.out.println("done");
     }
 
